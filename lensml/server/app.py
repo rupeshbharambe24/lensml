@@ -129,6 +129,33 @@ def create_app(
         store: EventStore = request.app.state.store
         return store.get_events(run_id, since_id=since_id, limit=limit, kind=kind)
 
+    @app.post("/api/runs/{run_id}/_test_publish")
+    async def test_publish(run_id: str, request: Request) -> dict[str, Any]:
+        """Dev-only helper: inject a test event into the broker + store.
+
+        Lets you smoke-test the dashboard SSE pipeline without running a real
+        trainer. Body is any JSON dict; ``run_id`` and ``kind`` are filled in
+        from the path / default if absent.
+
+            curl.exe -X POST http://127.0.0.1:8000/api/runs/demo-run/_test_publish ^
+              -H "Content-Type: application/json" ^
+              -d "{\"step\": 1, \"loss\": 0.5}"
+        """
+        payload: dict[str, Any] = await request.json()
+        payload.setdefault("run_id", run_id)
+        kind = str(payload.setdefault("kind", "metric"))
+        store: EventStore = request.app.state.store
+        broker: EventBroker = request.app.state.broker
+        store.begin_run(run_id)  # idempotent — safe if already exists
+        store.append_event(run_id, kind, payload)
+        broker.publish(payload)
+        return {
+            "status": "published",
+            "run_id": run_id,
+            "kind": kind,
+            "subscribers": broker.subscriber_count,
+        }
+
     @app.get("/api/runs/{run_id}/metrics")
     async def metrics_stream(run_id: str, request: Request) -> EventSourceResponse:
         broker: EventBroker = request.app.state.broker
