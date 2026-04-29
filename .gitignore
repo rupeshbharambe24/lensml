@@ -18,7 +18,7 @@ ENV/
 
 # uv
 .uv/
-uv.lock
+# Note: uv.lock IS committed for build reproducibility (apps, not libraries).
 
 # Test / coverage / type / lint caches
 .pytest_cache/
