@@ -1,0 +1,111 @@
+[project]
+name = "lensml"
+version = "0.1.0"
+description = "An open-source AI agent that supervises ML training runs in real time."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+authors = [{ name = "Rupesh Bharambe" }]
+keywords = [
+    "pytorch",
+    "lightning",
+    "transformers",
+    "training",
+    "agent",
+    "llm",
+    "observability",
+    "ml",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+]
+dependencies = [
+    "fastapi>=0.115",
+    "sse-starlette>=2.1",
+    "uvicorn[standard]>=0.30",
+    "pyzmq>=26.0",
+    "libcst>=1.4",
+    "litellm>=1.50",
+    "pydantic>=2.8",
+    "torch>=2.2",
+    "rich>=13.7",
+    "typer>=0.12",
+    "tomli>=2.0; python_version<'3.11'",
+]
+
+[project.optional-dependencies]
+lightning = ["lightning>=2.3"]
+transformers = ["transformers>=4.40", "datasets>=2.20"]
+all = [
+    "lightning>=2.3",
+    "transformers>=4.40",
+    "datasets>=2.20",
+    "accelerate>=0.30",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=5.0",
+    "ruff>=0.6",
+    "mypy>=1.10",
+    "httpx>=0.27",
+]
+docs = [
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.25",
+]
+
+[project.scripts]
+lensml = "lensml.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/rupeshbharambe24/lensml"
+Repository = "https://github.com/rupeshbharambe24/lensml"
+Issues = "https://github.com/rupeshbharambe24/lensml/issues"
+Documentation = "https://github.com/rupeshbharambe24/lensml/tree/main/docs"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["lensml"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["dashboard", "ee", "lensml/bench/fixtures"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+# RUF001/2/3 flag em/en dashes as ambiguous Unicode — we use them deliberately
+# in docstrings and module headers (matches lensml-plan.md prose). Skip.
+ignore = ["E501", "RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+ignore_missing_imports = true
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.6",
+    "mypy>=1.10",
+]

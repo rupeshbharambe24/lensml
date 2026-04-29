@@ -1,0 +1,12 @@
+lensml Enterprise Edition License
+
+Copyright 2026 Rupesh Bharambe. All rights reserved.
+
+The contents of the `ee/` directory are reserved for future commercial
+features (e.g., SSO, team-shared dashboards, fine-tuned supervisor models).
+They are NOT licensed under Apache-2.0 and are not yet released for use.
+
+For licensing inquiries, contact: software@biopanscientific.com
+
+This file is a placeholder. The final commercial license terms will be
+published before any `/ee/` code is shipped.

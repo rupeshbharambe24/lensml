@@ -1,0 +1,47 @@
+# lensml configuration template — copy to ~/.lensml/config.toml
+#
+# This file is gitignored in your project but lives here as a template
+# (see plan §14 Day 1 setup checklist).
+#
+# Fill in the keys you have. lensml routes per-task via LiteLLM and falls
+# back across providers automatically; missing providers are simply skipped.
+
+[providers.groq]
+api_key = ""  # https://console.groq.com/keys
+# Free tier: ~30 RPM as of plan write. Verify on Day 1.
+
+[providers.cerebras]
+api_key = ""  # https://cloud.cerebras.ai/
+# Free tier: ~30 RPM.
+
+[providers.gemini]
+api_key = ""  # https://aistudio.google.com/apikey
+# Gemini 2.5 Pro free: 5 RPM / 100 RPD as of plan write. Cuts likely.
+
+[providers.openrouter]
+api_key = ""  # https://openrouter.ai/keys
+# Free models include Qwen3-Coder, DeepSeek; ~20 RPM.
+
+[providers.mistral]
+api_key = ""  # https://console.mistral.ai/
+
+[routing]
+# Per-task primary/secondary/tertiary. See plan §5.5.
+anomaly_classification = ["groq/llama-3.1-8b-instant", "cerebras/llama-3.1-8b", "gemini/gemini-2.5-flash-lite"]
+diagnosis              = ["gemini/gemini-2.5-pro", "cerebras/gpt-oss-120b", "openrouter/deepseek/deepseek-chat-free"]
+patch_generation       = ["openrouter/qwen/qwen3-coder-free", "mistral/codestral-latest", "gemini/gemini-2.5-pro"]
+verification           = ["cerebras/gpt-oss-120b", "gemini/gemini-2.5-pro"]
+
+[server]
+host = "127.0.0.1"
+port = 8000
+
+[privacy]
+# Plan §5.6: Plan C — privacy mode is scaffolded; live demo uses cloud.
+mode = "cloud"  # one of: "cloud", "local"
+ollama_host = "http://127.0.0.1:11434"
+local_model = "qwen2.5-coder:7b-instruct-q4_K_M"
+
+[telemetry]
+sampling_rate_hz = 20  # how often hooks publish telemetry
+log_path = "~/.lensml/runs"
