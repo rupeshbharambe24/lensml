@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+/* Override uPlot's default light theme for our dark mode */
+.u-legend {
+  color: #a3a3a3;
+  font-size: 0.75rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.u-legend th,
+.u-legend td {
+  padding: 0.125rem 0.5rem;
+}
+
+.u-axis {
+  color: #71717a;
+}
+
+.uplot {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
