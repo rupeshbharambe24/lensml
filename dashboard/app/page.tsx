@@ -6,7 +6,7 @@ import { AgentReasoning } from "@/components/AgentReasoning";
 import { DiffPreview } from "@/components/DiffPreview";
 import { LiveMetrics } from "@/components/LiveMetrics";
 import { StatusPill } from "@/components/StatusPill";
-import { useSSE } from "@/lib/useSSE";
+import { LENSML_API_URL, useSSE } from "@/lib/useSSE";
 
 const DEFAULT_RUN_ID = "demo-run";
 
@@ -14,7 +14,9 @@ export default function HomePage() {
   // For step 1.5 the run id is hardcoded; the URL bar / API will drive it
   // in step 2.x once /api/runs returns active runs.
   const [runId] = useState(DEFAULT_RUN_ID);
-  const sseUrl = `/api/runs/${runId}/metrics`;
+  // Absolute URL bypasses the Next.js dev proxy (which buffers SSE).
+  // FastAPI is configured with CORS for localhost:3000.
+  const sseUrl = `${LENSML_API_URL}/api/runs/${runId}/metrics`;
   const { events, status } = useSSE(sseUrl);
 
   return (

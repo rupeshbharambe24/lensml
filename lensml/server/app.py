@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING, Any
 import zmq
 import zmq.asyncio
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 
 from lensml.server.sse import EventBroker
@@ -65,10 +66,17 @@ async def _zmq_bridge(
         ctx.term()
 
 
+DEFAULT_CORS_ORIGINS: tuple[str, ...] = (
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+)
+
+
 def create_app(
     *,
     db_path: str = ":memory:",
     zmq_endpoint: str | None = None,
+    cors_origins: tuple[str, ...] | list[str] = DEFAULT_CORS_ORIGINS,
 ) -> FastAPI:
     """Application factory.
 
@@ -77,6 +85,10 @@ def create_app(
         zmq_endpoint: if set, spawn a background ZMQ SUB → broker bridge.
             None disables the bridge — useful for tests that publish
             directly to the broker.
+        cors_origins: list of allowed origins for browser CORS. Default
+            allows the local Next.js dev server. SSE specifically NEEDS
+            CORS rather than going through the Next.js dev proxy because
+            the dev proxy buffers streaming responses.
     """
 
     @asynccontextmanager
@@ -100,6 +112,14 @@ def create_app(
             store.close()
 
     app = FastAPI(title="lensml", lifespan=lifespan)
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=list(cors_origins),
+        allow_credentials=False,
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["*"],
+    )
 
     @app.get("/healthz")
     async def healthz() -> dict[str, bool]:

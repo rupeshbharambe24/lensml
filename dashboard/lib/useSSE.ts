@@ -16,6 +16,16 @@ export type SSEStatus = "idle" | "connecting" | "open" | "error" | "closed";
 const MAX_EVENTS = 2000;
 
 /**
+ * Base URL of the lensml FastAPI server. Browser code reads it via the
+ * `NEXT_PUBLIC_*` env var so it's bundled at build time. Default targets
+ * the local dev server. SSE bypasses the Next.js dev proxy because that
+ * proxy buffers streaming responses — see notes on CORSMiddleware in
+ * `lensml.server.app`.
+ */
+export const LENSML_API_URL: string =
+  process.env.NEXT_PUBLIC_LENSML_API_URL ?? "http://127.0.0.1:8000";
+
+/**
  * Subscribe to a server-sent-events endpoint. Native EventSource
  * auto-reconnects on disconnect. Pass `null` for `url` to detach.
  *
