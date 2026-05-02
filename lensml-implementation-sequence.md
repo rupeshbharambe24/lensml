@@ -65,7 +65,7 @@ End-of-week gate: detect → diagnose → diff → `y` → patch committed → c
 
 | #   | Day    | Task | Exit criterion | Plan ref |
 | --- | ------ | ---- | -------------- | -------- |
-| 2.1 | May 15 | `lensml/llm/client.py` + `routing.py`: LiteLLM wrapper with failover. Reads `~/.lensml/config.toml`. | One tool-call works against primary provider | §8 D8 |
+| 2.1 | May 02 ✅ | `lensml/llm/client.py` + `routing.py`: LiteLLM wrapper with failover. Reads `~/.lensml/config.toml`. | `LensmlLLM` (async, per-task fallback chain, attempt log, AllRoutesFailedError) + `Task` StrEnum + `DEFAULT_ROUTES` for the 4 plan §5.5 categories. OpenRouter app-id headers added automatically. Config.toml loaded without overwriting CI env vars. **21 new tests · 139/139 total pass.** | §8 D8 |
 | 2.2 | May 16 | **CP** `lensml/agent/tools.py`: all 12 tools as Pydantic schemas. Server-side execution from event store. | Agent chains 3–5 tool calls, returns structured diagnosis | §8 D9 |
 | 2.3 | May 17 | **CP** `lensml/agent/loop.py` + `memory.py` + `confidence.py`: ~80-LOC ReAct loop. Three memory layers. N=3 self-consistency. | Agent emits structured diagnosis with HIGH/MEDIUM/LOW confidence on exploding-grad scenario | §8 D10 |
 | 2.4 | May 18 | **CP** `lensml/fixes/base.py` + `grad_clip.py` + `lower_lr.py` + `replace_activation.py` + `add_normalize.py`. Each with a unit test on a known input. | 4 transformers green in pytest | §8 D11 |
