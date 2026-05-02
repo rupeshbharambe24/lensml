@@ -83,7 +83,7 @@ End-of-week gate: Lightning + HF Trainer working, all 8 detectors live, replay m
 
 | #   | Day    | Task | Exit criterion | Plan ref |
 | --- | ------ | ---- | -------------- | -------- |
-| 3.1 | May 22 | **CP** `lensml/integrations/lightning.py`: `LensmlCallback`. Test on CIFAR-10 + small CNN. | Lightning end-to-end including approval + restart | §8 D15 |
+| 3.1 | May 02 ✅ | **CP** `lensml/integrations/lightning.py`: `LensmlCallback`. Test on a tiny LightningModule + Trainer. | `LensmlCallback(pl.Callback)` mirrors WatchHandle: `on_train_start` (run_dir + PID + signal + hooks), `on_before_optimizer_step` (telemetry + stop check → `trainer.save_checkpoint` + `sys.exit(EXIT_CHECKPOINTED)`), `on_save_checkpoint` (injects `lensml` metadata block: `run_id`/`step`/`next_batch_index`), `on_load_checkpoint` (restores them, sets `resumed=True`), `on_train_end` (teardown). Helper: `lensml_resume_ckpt()` reads `LENSML_RESUME` for `Trainer.fit(ckpt_path=...)`. **12 new tests · 303/303 total pass (3 skipped — Unix-only signal paths).** | §8 D15 |
 | 3.2 | May 23 | `lensml/integrations/transformers.py`: `LensmlTrainerCallback`. External orchestrator pattern (`should_training_stop = True` → server applies fix → restart with `resume_from_checkpoint=`). Test on DistilBERT/SST-2 (Colab T4). | HF integration works on T4 | §8 D16 |
 | 3.3 | May 24 | Detectors 2–4: `dead_relu`, `missing_normalize`, `lr_too_high`, `model_eval_not_called`. | 5 detectors total in CI | §8 D17 |
 | 3.4 | May 25 | Detectors 5–8: `dataloader_bottleneck`, `bad_init`, `vanishing_grad`. Plus 4 more libcst templates: `insert_eval_mode`, `kaiming_init`, `dataloader_workers`, `add_lr_scheduler`. | 8 detectors + 8 fix templates green | §8 D18 |
