@@ -23,11 +23,15 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette.sse import EventSourceResponse
 
+from lensml.detectors.exploding_grad import ExplodingGradDetector
+from lensml.detectors.runner import DetectorRunner
 from lensml.server.sse import EventBroker
 from lensml.server.store import EventStore
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
+
+    from lensml.detectors.base import Detector
 
 log = logging.getLogger(__name__)
 
@@ -72,11 +76,17 @@ DEFAULT_CORS_ORIGINS: tuple[str, ...] = (
 )
 
 
+def _default_detectors() -> list[Detector]:
+    """v1 detector roster (plan §4 row 1 — others land in steps 3.3-3.4)."""
+    return [ExplodingGradDetector()]
+
+
 def create_app(
     *,
     db_path: str = ":memory:",
     zmq_endpoint: str | None = None,
     cors_origins: tuple[str, ...] | list[str] = DEFAULT_CORS_ORIGINS,
+    detectors: list[Detector] | None = None,
 ) -> FastAPI:
     """Application factory.
 
@@ -89,6 +99,10 @@ def create_app(
             allows the local Next.js dev server. SSE specifically NEEDS
             CORS rather than going through the Next.js dev proxy because
             the dev proxy buffers streaming responses.
+        detectors: which detector instances to run against the broker
+            stream. Defaults to the v1 roster (plan §4); pass ``[]`` to
+            disable detection (useful in tests that exercise transport
+            only).
     """
 
     @asynccontextmanager
@@ -100,11 +114,18 @@ def create_app(
         if zmq_endpoint is not None:
             bridge_task = asyncio.create_task(_zmq_bridge(zmq_endpoint, broker, store))
 
+        runner = DetectorRunner(
+            broker, store, detectors if detectors is not None else _default_detectors()
+        )
+        await runner.start()
+
         app.state.store = store
         app.state.broker = broker
+        app.state.detector_runner = runner
         try:
             yield
         finally:
+            await runner.stop()
             if bridge_task is not None:
                 bridge_task.cancel()
                 with contextlib.suppress(asyncio.CancelledError, Exception):

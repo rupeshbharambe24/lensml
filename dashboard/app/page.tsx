@@ -33,7 +33,7 @@ export default function HomePage() {
       <div className="grid h-[calc(100vh-57px)] grid-cols-1 gap-4 p-4 md:grid-cols-2">
         <LiveMetrics events={events} />
         <div className="grid grid-rows-2 gap-4">
-          <AgentReasoning />
+          <AgentReasoning events={events} />
           <DiffPreview />
         </div>
       </div>
