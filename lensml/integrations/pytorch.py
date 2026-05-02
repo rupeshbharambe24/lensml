@@ -7,25 +7,34 @@ Plan refs:
                RemovableHandle teardown via context manager or explicit
                `lensml.unwatch()`.
     §8 Day 13 — checkpoint resume: `lensml.watch()` checks `LENSML_RESUME`
-                env var on init (deferred to Phase 2).
+                env var on init.
 
-Architecture (validated by spike 0.4 + step 1.2/1.3):
+Architecture (validated by spike 0.4 + step 1.2/1.3 + step 2.6):
     - Forward hooks on activation modules capture output references in a
       `TelemetryBuffer` (effectively zero hot-path cost).
     - `optimizer.step` is wrapped: BEFORE calling the original step, we
-      read `param.grad` (still valid pre-step) and compute summary stats
+      check the `CheckpointSignal` (SIGUSR1 on Unix / stop-flag on Windows)
+      and read `param.grad` (still valid pre-step) to compute summary stats
       every PUBLISH_EVERY-th call.
     - Stats are published via the transport layer (ZMQ PUB by default,
-      JSONL fallback). The lensml server's SUB bridge picks them up and
-      forwards to the dashboard via SSE.
+      JSONL fallback).
+    - On stop signal: save_checkpoint then sys.exit(99). Server's supervisor
+      then spawns a new trainer process with LENSML_RESUME=<ckpt_path> to
+      pick up exactly where we left off.
+    - On startup with LENSML_RESUME set: load_checkpoint into model +
+      optimizer, restore step counter and next_batch_index.
 """
 
 from __future__ import annotations
 
 import contextlib
 import functools
+import logging
+import os
 import secrets
+import sys
 import time
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from lensml.core.hooks import (
@@ -33,12 +42,14 @@ from lensml.core.hooks import (
     install_capture_hooks,
     remove_hooks,
 )
+from lensml.core.signals import EXIT_CHECKPOINTED, CheckpointSignal
 from lensml.core.telemetry import activation_stats, global_grad_l2
 from lensml.core.transport import (
     JSONLPublisher,
     ZMQPublisher,
     make_publisher,
 )
+from lensml.server.checkpoint import load_checkpoint, save_checkpoint
 
 if TYPE_CHECKING:
     import torch.nn as nn
@@ -47,7 +58,11 @@ if TYPE_CHECKING:
     from torch.utils.hooks import RemovableHandle
 
 
+log = logging.getLogger(__name__)
+
 DEFAULT_PUBLISH_EVERY = 5  # plan §3.1 tick rate (~10-50 Hz envelope)
+DEFAULT_RUN_ROOT = Path.home() / ".lensml" / "runs"
+RESUME_ENV_VAR = "LENSML_RESUME"
 
 
 def _generate_run_id() -> str:
@@ -65,12 +80,24 @@ def _current_lr(optimizer: torch.optim.Optimizer) -> float | None:
 class WatchHandle:
     """Lifecycle handle returned by `lensml.watch()`.
 
-    Owns the hooks, the optimizer.step monkey-patch, and the publisher
-    socket. Use as a context manager or call `.unwatch()` explicitly.
+    Owns the hooks, the optimizer.step monkey-patch, the publisher socket,
+    and the checkpoint signal handler. Use as a context manager or call
+    `.unwatch()` explicitly.
 
     Attributes:
-        run_id: short unique id used as the SQLite/UI run identifier.
-        step:   number of completed optimizer steps since watch started.
+        run_id:           short unique id for this training run.
+        step:             optimizer steps completed since the original
+                          start of training (i.e. continues across resume).
+        next_batch_index: position in the deterministic dataset to resume
+                          from. Trainers that want bit-exact resume should
+                          fast-forward their dataloader to this index after
+                          ``watch()`` returns. (See spike 0.6 for the
+                          recipe.)
+        resumed:          True if this handle was constructed from a
+                          checkpoint (LENSML_RESUME was set).
+        run_dir:          per-run directory under ~/.lensml/runs/<run_id>/
+                          where the trainer.pid + checkpoints + STOP flag
+                          live.
     """
 
     def __init__(
@@ -81,28 +108,48 @@ class WatchHandle:
         optimizer: torch.optim.Optimizer,
         publisher: JSONLPublisher | ZMQPublisher,
         publish_every: int = DEFAULT_PUBLISH_EVERY,
+        run_dir: Path | None = None,
+        enable_checkpoint: bool = True,
+        scheduler: Any | None = None,
     ) -> None:
         self.run_id = run_id
         self.step = 0
+        self.next_batch_index = 0
+        self.resumed = False
         self.publish_every = publish_every
+        self.enable_checkpoint = enable_checkpoint
+        self.run_dir = run_dir if run_dir is not None else DEFAULT_RUN_ROOT / run_id
+
         self._model = model
         self._optimizer = optimizer
+        self._scheduler = scheduler
         self._publisher = publisher
         self._buffer = TelemetryBuffer()
         self._hook_handles: list[RemovableHandle] = []
         self._original_step: Any | None = None
         self._closed = False
 
+        # Checkpoint / signal infrastructure (filled in _install).
+        self._signal: CheckpointSignal | None = None
+        self._pid_file: Path | None = None
+        self._stop_flag_path: Path | None = None
+
     # ---- setup / teardown ----
 
     def _install(self) -> None:
-        """Internal: install forward hooks and wrap optimizer.step.
+        """Internal: install forward hooks, wrap optimizer.step, set up
+        the checkpoint signal handler + PID file, and load from
+        LENSML_RESUME if set.
 
-        Called by `watch()` immediately after construction. Idempotent —
-        skips if already installed.
+        Idempotent — skips if already installed.
         """
         if self._original_step is not None:
             return
+
+        if self.enable_checkpoint:
+            self._setup_run_dir()
+            self._maybe_resume()
+            self._install_signal()
 
         self._hook_handles = install_capture_hooks(self._model, self._buffer)
 
@@ -111,11 +158,20 @@ class WatchHandle:
 
         @functools.wraps(original)
         def wrapped(*args: Any, **kwargs: Any) -> Any:
+            # Stop check BEFORE the step — gives a clean checkpoint with
+            # state matching the published telemetry.
+            if self.enable_checkpoint and self._signal is not None and self._signal.should_stop:
+                self._handle_stop()
+                # _handle_stop calls sys.exit; this return is unreachable
+                # but appeases static analysis.
+                return None
+
             # Capture telemetry BEFORE the step — grads are still valid here.
             if self.step % self.publish_every == 0:
                 self._publish_step()
             result = original(*args, **kwargs)
             self.step += 1
+            self.next_batch_index += 1
             return result
 
         # Setting an instance attribute on the optimizer shadows the class-
@@ -128,11 +184,15 @@ class WatchHandle:
                 "run_id": self.run_id,
                 "kind": "run_started",
                 "ts": time.time(),
+                "resumed": self.resumed,
+                "step": self.step,
+                "pid": os.getpid(),
             }
         )
 
     def unwatch(self) -> None:
-        """Remove hooks, restore optimizer.step, close publisher.
+        """Remove hooks, restore optimizer.step, close publisher,
+        uninstall signal handler, remove PID file.
 
         Idempotent — calling twice is a no-op.
         """
@@ -141,13 +201,19 @@ class WatchHandle:
         self._closed = True
 
         if self._original_step is not None:
-            # Drop the instance attribute we added; falls back to the class method.
             with contextlib.suppress(AttributeError):
                 del self._optimizer.step  # type: ignore[method-assign]
             self._original_step = None
 
         remove_hooks(self._hook_handles)
         self._buffer.clear()
+
+        if self._signal is not None:
+            self._signal.uninstall()
+
+        if self._pid_file is not None and self._pid_file.exists():
+            with contextlib.suppress(OSError):
+                self._pid_file.unlink()
 
         self._publish_safely(
             {
@@ -164,6 +230,105 @@ class WatchHandle:
 
     def __exit__(self, *exc: Any) -> None:
         self.unwatch()
+
+    # ---- checkpoint / signal plumbing ----
+
+    def _setup_run_dir(self) -> None:
+        self.run_dir.mkdir(parents=True, exist_ok=True)
+        (self.run_dir / "checkpoints").mkdir(exist_ok=True)
+        self._pid_file = self.run_dir / "trainer.pid"
+        try:
+            self._pid_file.write_text(str(os.getpid()), encoding="utf-8")
+        except OSError as e:
+            log.warning("could not write PID file %s: %s", self._pid_file, e)
+            self._pid_file = None
+        self._stop_flag_path = self.run_dir / "STOP"
+
+    def _install_signal(self) -> None:
+        self._signal = CheckpointSignal(stop_flag_path=self._stop_flag_path)
+        # Clear any leftover STOP file from a prior session before installing.
+        self._signal.reset()
+        self._signal.install()
+
+    def _maybe_resume(self) -> None:
+        path_str = os.environ.get(RESUME_ENV_VAR)
+        if not path_str:
+            return
+        path = Path(path_str)
+        if not path.exists():
+            log.warning("%s set to %s but file does not exist", RESUME_ENV_VAR, path)
+            return
+        try:
+            info = load_checkpoint(
+                path,
+                model=self._model,
+                optimizer=self._optimizer,
+                scheduler=self._scheduler,
+            )
+        except Exception:
+            log.exception("failed to load checkpoint from %s", path)
+            return
+        self.step = info["step"]
+        self.next_batch_index = info["next_batch_index"]
+        self.resumed = True
+        log.info(
+            "resumed run_id=%s from %s (step=%d, next_batch=%d)",
+            self.run_id,
+            path,
+            self.step,
+            self.next_batch_index,
+        )
+
+    def _checkpoint_path(self) -> Path:
+        return self.run_dir / "checkpoints" / f"step-{self.step:08d}.pt"
+
+    def checkpoint(self, path: Path | None = None) -> Path:
+        """Save a checkpoint of the current trainer state. Returns the path.
+
+        Public API so user code can checkpoint manually (e.g. on epoch
+        boundaries) without waiting for a stop signal.
+        """
+        path = path if path is not None else self._checkpoint_path()
+        save_checkpoint(
+            path,
+            step=self.step,
+            next_batch_index=self.next_batch_index,
+            model=self._model,
+            optimizer=self._optimizer,
+            scheduler=self._scheduler,
+            extra={
+                "run_id": self.run_id,
+                "ts": time.time(),
+                "pid": os.getpid(),
+            },
+        )
+        return path
+
+    def _handle_stop(self) -> None:
+        """Save a checkpoint and exit with code 99 (the "checkpointed
+        cleanly" sentinel)."""
+        try:
+            path = self.checkpoint()
+            log.info(
+                "stop signal received; checkpointed run_id=%s step=%d → %s",
+                self.run_id,
+                self.step,
+                path,
+            )
+            self._publish_safely(
+                {
+                    "run_id": self.run_id,
+                    "kind": "checkpointed",
+                    "ts": time.time(),
+                    "step": self.step,
+                    "checkpoint_path": str(path),
+                }
+            )
+        except Exception:
+            log.exception("checkpoint save failed; exiting anyway")
+        with contextlib.suppress(Exception):
+            self._publisher.close()
+        sys.exit(EXIT_CHECKPOINTED)
 
     # ---- publish ----
 
@@ -220,6 +385,9 @@ def watch(
     transport: str | None = None,
     publisher: JSONLPublisher | ZMQPublisher | None = None,
     publish_every: int = DEFAULT_PUBLISH_EVERY,
+    run_dir: Path | None = None,
+    enable_checkpoint: bool = True,
+    scheduler: Any | None = None,
 ) -> WatchHandle:
     """Install lensml supervision on a PyTorch training loop.
 
@@ -229,7 +397,8 @@ def watch(
         model: any `torch.nn.Module`. Forward hooks are installed on its
             activation submodules (ReLU/GELU/etc).
         optimizer: any `torch.optim.Optimizer`. Its `.step` is wrapped to
-            publish telemetry every `publish_every` steps.
+            publish telemetry every `publish_every` steps and to honor
+            stop signals.
         dataloader: accepted for API compatibility; currently unused. Will
             be instrumented for the dataloader_bottleneck detector in v0.2.
         run_id: human-readable run identifier. Auto-generated if not given.
@@ -241,6 +410,14 @@ def watch(
         publish_every: how often (in optimizer steps) the auto-captured
             telemetry is emitted. Default 5 ≈ 20 Hz on a 10 ms/step CPU
             loop, matching plan §3.1's 10–50 Hz tick envelope.
+        run_dir: per-run directory for the trainer.pid + STOP flag +
+            checkpoints. Defaults to ``~/.lensml/runs/<run_id>/``.
+        enable_checkpoint: if True (default), set up the run dir, write
+            the PID file, install the checkpoint signal handler, and
+            check ``LENSML_RESUME`` to load from a checkpoint. Set to
+            False in tests that don't want filesystem side effects.
+        scheduler: optional learning-rate scheduler — its state_dict is
+            also saved/loaded with the checkpoint.
 
     Returns:
         A `WatchHandle` — call `.unwatch()` or use as a context manager.
@@ -257,6 +434,9 @@ def watch(
         optimizer=optimizer,
         publisher=publisher,
         publish_every=publish_every,
+        run_dir=run_dir,
+        enable_checkpoint=enable_checkpoint,
+        scheduler=scheduler,
     )
     handle._install()
     return handle
