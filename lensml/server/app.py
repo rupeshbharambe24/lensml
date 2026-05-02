@@ -15,6 +15,7 @@ import contextlib
 import json
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import zmq
@@ -25,6 +26,8 @@ from sse_starlette.sse import EventSourceResponse
 
 from lensml.detectors.exploding_grad import ExplodingGradDetector
 from lensml.detectors.runner import DetectorRunner
+from lensml.server.decisions import apply_decision, compute_diff_preview
+from lensml.server.git import GitError, GitRepo
 from lensml.server.sse import EventBroker
 from lensml.server.store import EventStore
 
@@ -87,6 +90,8 @@ def create_app(
     zmq_endpoint: str | None = None,
     cors_origins: tuple[str, ...] | list[str] = DEFAULT_CORS_ORIGINS,
     detectors: list[Detector] | None = None,
+    script_path: str | None = None,
+    repo_path: str | None = None,
 ) -> FastAPI:
     """Application factory.
 
@@ -122,6 +127,8 @@ def create_app(
         app.state.store = store
         app.state.broker = broker
         app.state.detector_runner = runner
+        app.state.script_path = script_path
+        app.state.repo_path = repo_path
         try:
             yield
         finally:
@@ -169,6 +176,203 @@ def create_app(
     ) -> list[dict[str, Any]]:
         store: EventStore = request.app.state.store
         return store.get_events(run_id, since_id=since_id, limit=limit, kind=kind)
+
+    # ---- decision approval flow (plan §3.3 / §8 D12) ----
+
+    def _resolve_script_path(request: Request, override: str | None) -> Path | None:
+        """Choose the script path: request body > app config > None."""
+        from pathlib import Path as _Path
+
+        if override:
+            return _Path(override)
+        configured = request.app.state.script_path
+        return _Path(configured) if configured else None
+
+    def _resolve_repo(request: Request) -> GitRepo | None:
+        from pathlib import Path as _Path
+
+        repo_path = request.app.state.repo_path
+        if not repo_path:
+            return None
+        return GitRepo(_Path(repo_path))
+
+    @app.get("/api/runs/{run_id}/decisions")
+    async def list_decisions(run_id: str, request: Request) -> list[dict[str, Any]]:
+        store: EventStore = request.app.state.store
+        return store.list_decisions(run_id)
+
+    @app.get("/api/runs/{run_id}/decisions/{decision_id}")
+    async def get_decision(
+        run_id: str,
+        decision_id: int,
+        request: Request,
+        script_path: str | None = None,
+    ) -> dict[str, Any]:
+        store: EventStore = request.app.state.store
+        decision = store.get_decision(decision_id)
+        if decision is None or decision.get("run_id") != run_id:
+            raise HTTPException(status_code=404, detail=f"decision {decision_id} not found")
+
+        path = _resolve_script_path(request, script_path)
+        out: dict[str, Any] = dict(decision)
+        if path is None:
+            out["preview"] = {
+                "applicable": False,
+                "reason": "no script_path configured (set --script-path on the server or pass ?script_path=)",
+            }
+            return out
+
+        preview = compute_diff_preview(decision, path)
+        out["preview"] = {
+            "applicable": preview.applicable,
+            "reason": preview.reason,
+            "template": preview.template,
+            "rationale": preview.rationale,
+            "params": preview.params,
+            "old_source": preview.old_source,
+            "new_source": preview.new_source,
+            "diff": preview.diff,
+        }
+        return out
+
+    @app.post("/api/runs/{run_id}/decisions/{decision_id}/approve")
+    async def approve_decision(
+        run_id: str,
+        decision_id: int,
+        request: Request,
+    ) -> dict[str, Any]:
+        body = {}
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+        script_override = body.get("script_path") if isinstance(body, dict) else None
+
+        store: EventStore = request.app.state.store
+        broker: EventBroker = request.app.state.broker
+        decision = store.get_decision(decision_id)
+        if decision is None or decision.get("run_id") != run_id:
+            raise HTTPException(status_code=404, detail=f"decision {decision_id} not found")
+        if decision.get("approved") is not None:
+            raise HTTPException(
+                status_code=409,
+                detail=f"decision {decision_id} already resolved",
+            )
+
+        path = _resolve_script_path(request, script_override)
+        if path is None:
+            raise HTTPException(
+                status_code=400,
+                detail="no script_path configured; pass {'script_path': ...} in the body or start the server with --script-path",
+            )
+
+        repo = _resolve_repo(request)
+        if repo is None:
+            raise HTTPException(
+                status_code=400,
+                detail="no repo_path configured on the server",
+            )
+
+        try:
+            outcome = apply_decision(decision, script_path=path, repo=repo, run_id=run_id)
+        except GitError as e:
+            raise HTTPException(status_code=500, detail=f"git error: {e}") from e
+
+        if not outcome.applied:
+            raise HTTPException(
+                status_code=422,
+                detail=f"fix did not apply: {outcome.reason}",
+            )
+
+        store.resolve_decision(decision_id, approved=True)
+        event = {
+            "kind": "decision_applied",
+            "run_id": run_id,
+            "decision_id": decision_id,
+            "template": decision.get("fix_template"),
+            "commit": outcome.commit,
+            "ts": __import__("time").time(),
+        }
+        store.append_event(run_id, "decision_applied", event)
+        broker.publish(event)
+
+        return {
+            "status": "applied",
+            "decision_id": decision_id,
+            "commit": outcome.commit,
+            "diff": outcome.diff,
+        }
+
+    @app.post("/api/runs/{run_id}/decisions/{decision_id}/reject")
+    async def reject_decision(
+        run_id: str,
+        decision_id: int,
+        request: Request,
+    ) -> dict[str, Any]:
+        store: EventStore = request.app.state.store
+        broker: EventBroker = request.app.state.broker
+        decision = store.get_decision(decision_id)
+        if decision is None or decision.get("run_id") != run_id:
+            raise HTTPException(status_code=404, detail=f"decision {decision_id} not found")
+        if decision.get("approved") is not None:
+            raise HTTPException(
+                status_code=409,
+                detail=f"decision {decision_id} already resolved",
+            )
+        store.resolve_decision(decision_id, approved=False)
+        event = {
+            "kind": "decision_rejected",
+            "run_id": run_id,
+            "decision_id": decision_id,
+            "ts": __import__("time").time(),
+        }
+        store.append_event(run_id, "decision_rejected", event)
+        broker.publish(event)
+        return {"status": "rejected", "decision_id": decision_id}
+
+    @app.post("/api/runs/{run_id}/decisions/{decision_id}/undo")
+    async def undo_decision(
+        run_id: str,
+        decision_id: int,
+        request: Request,
+    ) -> dict[str, Any]:
+        store: EventStore = request.app.state.store
+        broker: EventBroker = request.app.state.broker
+        decision = store.get_decision(decision_id)
+        if decision is None or decision.get("run_id") != run_id:
+            raise HTTPException(status_code=404, detail=f"decision {decision_id} not found")
+        if decision.get("approved") != 1:
+            raise HTTPException(
+                status_code=409,
+                detail="can only undo a previously-approved decision",
+            )
+
+        repo = _resolve_repo(request)
+        if repo is None:
+            raise HTTPException(
+                status_code=400,
+                detail="no repo_path configured on the server",
+            )
+
+        try:
+            repo.reset_hard("HEAD~1")
+        except GitError as e:
+            raise HTTPException(status_code=500, detail=f"git reset failed: {e}") from e
+
+        # Mark as un-applied (back to pending so the agent could re-propose).
+        store.conn.execute(
+            "UPDATE decisions SET approved = NULL, applied_at = NULL WHERE id = ?",
+            (decision_id,),
+        )
+        event = {
+            "kind": "decision_undone",
+            "run_id": run_id,
+            "decision_id": decision_id,
+            "ts": __import__("time").time(),
+        }
+        store.append_event(run_id, "decision_undone", event)
+        broker.publish(event)
+        return {"status": "undone", "decision_id": decision_id}
 
     @app.post("/api/runs/{run_id}/_test_publish")
     async def test_publish(run_id: str, request: Request) -> dict[str, Any]:

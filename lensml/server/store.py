@@ -188,12 +188,24 @@ class EventStore:
 
     def list_decisions(self, run_id: str) -> list[dict[str, Any]]:
         cur = self.conn.execute(
-            "SELECT id, ts, fix_template, diff_text, approved, applied_at "
+            "SELECT id, run_id, ts, fix_template, diff_text, approved, applied_at "
             "FROM decisions WHERE run_id = ? ORDER BY ts ASC",
             (run_id,),
         )
-        cols = ("id", "ts", "fix_template", "diff_text", "approved", "applied_at")
+        cols = ("id", "run_id", "ts", "fix_template", "diff_text", "approved", "applied_at")
         return [dict(zip(cols, row, strict=True)) for row in cur.fetchall()]
+
+    def get_decision(self, decision_id: int) -> dict[str, Any] | None:
+        cur = self.conn.execute(
+            "SELECT id, run_id, ts, fix_template, diff_text, approved, applied_at "
+            "FROM decisions WHERE id = ?",
+            (decision_id,),
+        )
+        row = cur.fetchone()
+        if row is None:
+            return None
+        cols = ("id", "run_id", "ts", "fix_template", "diff_text", "approved", "applied_at")
+        return dict(zip(cols, row, strict=True))
 
     # ---- lifecycle ----
 

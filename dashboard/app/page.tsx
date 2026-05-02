@@ -34,7 +34,7 @@ export default function HomePage() {
         <LiveMetrics events={events} />
         <div className="grid grid-rows-2 gap-4">
           <AgentReasoning events={events} />
-          <DiffPreview />
+          <DiffPreview runId={runId} events={events} />
         </div>
       </div>
     </main>
