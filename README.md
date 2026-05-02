@@ -4,10 +4,19 @@
 
 <!-- Hero GIF placeholder — record on Day 27 (see lensml-plan.md §8) -->
 
-[![PyPI](https://img.shields.io/pypi/v/lensml.svg)](https://pypi.org/project/lensml/)
-[![Python](https://img.shields.io/pypi/pyversions/lensml.svg)](https://pypi.org/project/lensml/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![CI](https://github.com/rupeshbharambe24/lensml/actions/workflows/ci.yml/badge.svg)](https://github.com/rupeshbharambe24/lensml/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue.svg)](pyproject.toml)
+[![Status](https://img.shields.io/badge/status-alpha%20%7C%20pre--release-orange.svg)](lensml-implementation-sequence.md)
+
+> **Status: pre-release alpha.** Built for the FAR AWAY hackathon (June 7,
+> 2026). The build is on a 30-day calendar — see
+> [lensml-implementation-sequence.md](lensml-implementation-sequence.md)
+> for what's working today vs. what's coming. End-of-Phase-1 (Week 1)
+> state: trainer-side `lensml.watch()` API ✓, FastAPI server ✓, Next.js
+> dashboard with live SSE chart ✓, first detector (`exploding_grad`) ✓.
+> Lightning + HF integrations, libcst patches, LLM agent, and checkpoint
+> resume land in Phases 2–4.
 
 ## What it does
 

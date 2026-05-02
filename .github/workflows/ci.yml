@@ -45,3 +45,29 @@ jobs:
         run: uv sync --all-extras
       - name: Run tests
         run: uv run pytest -v --cov=lensml --cov-report=term-missing
+
+  dashboard:
+    # Catches Next.js / TypeScript / lint regressions in the dashboard.
+    # Step 1.5 shipped with an empty next.config.ts (rewrites lost to
+    # the create-next-app overwrite race) and CI didn't catch it because
+    # only Python was tested. Lesson learned — build the dashboard too.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dashboard
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+          cache-dependency-path: dashboard/pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Build
+        run: pnpm build
