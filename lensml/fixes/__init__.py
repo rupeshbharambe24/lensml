@@ -19,9 +19,13 @@ statements) are stable.
 
 from __future__ import annotations
 
+from lensml.fixes.add_lr_scheduler import AddLRScheduler
 from lensml.fixes.add_normalize import AddNormalize
 from lensml.fixes.base import FixResult, FixTemplate
+from lensml.fixes.dataloader_workers import DataLoaderWorkers
 from lensml.fixes.grad_clip import AddGradientClipping
+from lensml.fixes.insert_eval_mode import InsertEvalMode
+from lensml.fixes.kaiming_init import KaimingInit
 from lensml.fixes.lower_lr import LowerLearningRate
 from lensml.fixes.replace_activation import ReplaceActivation
 
@@ -31,6 +35,10 @@ FIX_REGISTRY: dict[str, type[FixTemplate]] = {
     LowerLearningRate.name: LowerLearningRate,
     ReplaceActivation.name: ReplaceActivation,
     AddNormalize.name: AddNormalize,
+    InsertEvalMode.name: InsertEvalMode,
+    KaimingInit.name: KaimingInit,
+    DataLoaderWorkers.name: DataLoaderWorkers,
+    AddLRScheduler.name: AddLRScheduler,
 }
 
 
@@ -51,9 +59,13 @@ def build_fix(template: str, params: dict | None = None) -> FixTemplate:
 __all__ = [
     "FIX_REGISTRY",
     "AddGradientClipping",
+    "AddLRScheduler",
     "AddNormalize",
+    "DataLoaderWorkers",
     "FixResult",
     "FixTemplate",
+    "InsertEvalMode",
+    "KaimingInit",
     "LowerLearningRate",
     "ReplaceActivation",
     "build_fix",
