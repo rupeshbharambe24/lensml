@@ -24,9 +24,10 @@ import re
 import shutil
 import tempfile
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from lensml.bench.fixtures import discover_fixtures
 from lensml.bench.grader import (
