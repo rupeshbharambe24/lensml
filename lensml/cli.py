@@ -139,6 +139,70 @@ def bench_run(
         typer.echo(f"  → wrote {md} and {js}")
 
 
+@bench_app.command("baseline")
+def bench_baseline(
+    provider: str = typer.Option(
+        "groq", "--provider", help="LLM provider label (e.g. groq, gemini, cerebras)."
+    ),
+    env: str | None = typer.Option(None, "--env", help="Filter by host env."),
+    pathology: str | None = typer.Option(None, "--pathology", help="Filter by pathology_class."),
+    out: str | None = typer.Option(
+        None, "--out", help="Write baseline-<provider>.json under this directory."
+    ),
+    timeout: float = typer.Option(120.0, "--timeout", help="Per-script subprocess timeout."),
+) -> None:
+    """Run the LLM-only baseline (plan §6.3) — the credibility lynchpin.
+
+    For each fixture, single-shots the bug.py at the configured LLM
+    provider with a "diagnose + propose unified diff" prompt. Parses
+    the response, applies the diff, grades the patched script. Output
+    is shaped exactly like ``lensml bench run`` so reports can compare
+    arms side by side.
+    """
+    import asyncio
+    import json as _json
+
+    from lensml.bench.baseline import BaselineRunner
+    from lensml.llm.client import LensmlLLM
+    from lensml.llm.routing import Task
+
+    llm = LensmlLLM()
+
+    def _complete(prompt: str) -> str:
+        async def _go() -> str:
+            resp = await llm.complete(
+                Task.DIAGNOSIS,
+                [{"role": "user", "content": prompt}],
+                max_tokens=1024,
+                temperature=0.0,
+            )
+            return resp.content or ""
+
+        return asyncio.run(_go())
+
+    runner = BaselineRunner(provider=provider, complete=_complete, timeout=timeout)
+    summary = runner.run_all(env=env, pathology=pathology)
+    typer.echo(
+        f"baseline[{provider}]: {summary.fix_passes}/{summary.total} fixes pass; "
+        f"{summary.diagnosis_correct}/{summary.total} diagnoses correct; "
+        f"{summary.diff_applied}/{summary.total} diffs applied; "
+        f"elapsed {summary.elapsed:.1f}s"
+    )
+    for r in summary.results:
+        flag = "✓" if r.fix_passes else ("⊘" if r.diff_applied else "✗")
+        diag = r.diagnosed_class or "(unparsed)"
+        typer.echo(f"  {flag} {r.fixture_slug:40s}  {diag}")
+    if out is not None:
+        out_path = Path(out)
+        out_path.mkdir(parents=True, exist_ok=True)
+        target = out_path / f"baseline-{provider}.json"
+        target.write_text(
+            _json.dumps(summary.to_dict(), default=str, indent=2),
+            encoding="utf-8",
+        )
+        typer.echo(f"  → wrote {target}")
+
+
 def _post_event(server: str, event: dict[str, Any]) -> None:
     """POST an event to the running dashboard server's `_test_publish`
     endpoint. Uses the stdlib so we don't add an httpx dep to the CLI

@@ -101,3 +101,33 @@ def test_render_markdown_empty_summary() -> None:
     s = _summary()  # no runs
     md = render_markdown(s)
     assert "(no fixtures)" in md
+
+
+def test_render_markdown_with_baselines_includes_comparison_table() -> None:
+    """Plan §6.3 — LLM-only baseline comparison must show up in the
+    report when baselines are passed."""
+    from lensml.bench.baseline import BaselineSummary
+
+    s = _summary(_run("tiny/exploding_grad/0", fix_passes=True, bug_fails=True))
+    baseline = BaselineSummary(provider="groq", total=1, diagnosis_correct=1, fix_passes=0)
+    md = render_markdown(s, baselines=[baseline])
+    assert "lensml-full vs LLM-only baselines" in md
+    assert "credibility lynchpin" in md
+    assert "lensml-full" in md
+    assert "groq" in md
+
+
+def test_build_report_persists_baselines_in_json(tmp_path: Path) -> None:
+    from lensml.bench.baseline import BaselineSummary
+    from lensml.bench.report import build_report
+
+    s = _summary(_run("tiny/exploding_grad/0", fix_passes=True, bug_fails=True))
+    baseline = BaselineSummary(provider="cerebras", total=1, diagnosis_correct=0, fix_passes=0)
+    report = build_report(s, baselines=[baseline])
+    md_path, json_path = report.write(tmp_path / "out")
+    assert md_path.exists()
+    import json as _json
+
+    blob = _json.loads(json_path.read_text(encoding="utf-8"))
+    assert "baselines" in blob
+    assert blob["baselines"][0]["provider"] == "cerebras"

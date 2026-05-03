@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from lensml.bench.baseline import BaselineSummary
     from lensml.bench.runner import BenchSummary, FixtureRun
 
 
@@ -100,7 +101,29 @@ def _render_failures(runs: list[FixtureRun]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def render_markdown(summary: BenchSummary, *, title: str = "lensml-bench report") -> str:
+def _render_baseline_comparison(bench: BenchSummary, baselines: list[BaselineSummary]) -> str:
+    pct = lambda x: f"{x * 100:.1f}%"  # noqa: E731
+    lines = [
+        "| arm | n | diagnosis acc | fix-pass rate | overall pass |",
+        "| --- | --- | --- | --- | --- |",
+        f"| **lensml-full** | {bench.total} | n/a (unique) | "
+        f"{pct(bench.fix_pass_rate)} | {pct(bench.overall_pass_rate)} |",
+    ]
+    for b in baselines:
+        lines.append(
+            f"| llm-only · {b.provider} | {b.total} | "
+            f"{pct(b.diagnosis_accuracy)} | {pct(b.fix_pass_rate)} | "
+            f"{b.fix_passes}/{b.total} |"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def render_markdown(
+    summary: BenchSummary,
+    *,
+    title: str = "lensml-bench report",
+    baselines: list[BaselineSummary] | None = None,
+) -> str:
     pct = lambda x: f"{x * 100:.1f}%"  # noqa: E731
     out: list[str] = []
     out.append(f"# {title}\n")
@@ -118,6 +141,16 @@ def render_markdown(summary: BenchSummary, *, title: str = "lensml-bench report"
         f"- **Bug correctly fails:** {summary.bug_correctly_fails}/{summary.total}\n"
     )
     out.append("")
+    if baselines:
+        out.append("## lensml-full vs LLM-only baselines\n")
+        out.append(
+            "Plan §6.3: the LLM-only baseline is the credibility lynchpin. "
+            "If lensml-full doesn't beat single-shot LLM diagnosis, the "
+            "integration story doesn't hold up. Numbers below are over the "
+            "same fixture set.\n"
+        )
+        out.append(_render_baseline_comparison(summary, baselines))
+        out.append("")
     out.append("## Per-pathology\n")
     out.append(_render_per_pathology(summary.runs))
     out.append("")
@@ -129,10 +162,18 @@ def render_markdown(summary: BenchSummary, *, title: str = "lensml-bench report"
     return "\n".join(out)
 
 
-def build_report(summary: BenchSummary, *, title: str = "lensml-bench report") -> Report:
+def build_report(
+    summary: BenchSummary,
+    *,
+    title: str = "lensml-bench report",
+    baselines: list[BaselineSummary] | None = None,
+) -> Report:
+    summary_dict = summary.to_dict()
+    if baselines:
+        summary_dict["baselines"] = [b.to_dict() for b in baselines]
     return Report(
-        summary_dict=summary.to_dict(),
-        markdown=render_markdown(summary, title=title),
+        summary_dict=summary_dict,
+        markdown=render_markdown(summary, title=title, baselines=baselines),
     )
 
 
