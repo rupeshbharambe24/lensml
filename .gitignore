@@ -4,6 +4,10 @@ demo/out/
 # mkdocs build output — published to gh-pages via `mkdocs gh-deploy`.
 site/
 
+# Bench result caches (large, regenerable). Final reports live in
+# bench/results/<date>/final/ and ARE tracked.
+bench/results/*/cache.json
+
 # Python
 __pycache__/
 *.py[cod]

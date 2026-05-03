@@ -1,0 +1,387 @@
+{
+  "total": 8,
+  "fix_pass": 7,
+  "bug_correctly_fails": 4,
+  "overall_pass": 3,
+  "fix_pass_rate": 0.875,
+  "overall_pass_rate": 0.375,
+  "elapsed": 117.51808261871338,
+  "runs": [
+    {
+      "fixture_slug": "tiny/bad_init/0",
+      "pathology_class": "bad_init",
+      "host_env": "tiny",
+      "elapsed": 24.443464517593384,
+      "fix_passes": true,
+      "bug_correctly_fails": false,
+      "overall_pass": false,
+      "bug": {
+        "fixture_slug": "tiny/bad_init/0",
+        "variant": "bug",
+        "checks": {
+          "runs": true,
+          "loss_converged": true,
+          "metric_passed": null
+        },
+        "final_loss": 3.725290076417309e-09,
+        "final_metric": null,
+        "steps_used": 300,
+        "elapsed": 11.719370603561401,
+        "exit_code": 0,
+        "stdout_tail": "{\"final_loss\": 3.725290076417309e-09, \"steps_used\": 300, \"num_classes\": 2}\n",
+        "stderr_tail": "",
+        "reason": null,
+        "extra": {},
+        "passed": true
+      },
+      "patched": {
+        "fixture_slug": "tiny/bad_init/0",
+        "variant": "patched",
+        "checks": {
+          "runs": true,
+          "loss_converged": true,
+          "metric_passed": null
+        },
+        "final_loss": 0.0011979439295828342,
+        "final_metric": null,
+        "steps_used": 300,
+        "elapsed": 12.700865507125854,
+        "exit_code": 0,
+        "stdout_tail": "{\"final_loss\": 0.0011979439295828342, \"steps_used\": 300, \"num_classes\": 2}\n",
+        "stderr_tail": "",
+        "reason": null,
+        "extra": {},
+        "passed": true
+      }
+    },
+    {
+      "fixture_slug": "tiny/dead_relu/0",
+      "pathology_class": "dead_relu",
+      "host_env": "tiny",
+      "elapsed": 22.566211462020874,
+      "fix_passes": false,
+      "bug_correctly_fails": true,
+      "overall_pass": false,
+      "bug": {
+        "fixture_slug": "tiny/dead_relu/0",
+        "variant": "bug",
+        "checks": {
+          "runs": true,
+          "loss_converged": false,
+          "metric_passed": null
+        },
+        "final_loss": 0.6897128820419312,
+        "final_metric": null,
+        "steps_used": 300,
+        "elapsed": 11.469939470291138,
+        "exit_code": 0,
+        "stdout_tail": "{\"final_loss\": 0.6897128820419312, \"steps_used\": 300}\n",
+        "stderr_tail": "",
+        "reason": null,
+        "extra": {},
+        "passed": false
+      },
+      "patched": {
+        "fixture_slug": "tiny/dead_relu/0",
+        "variant": "patched",
+        "checks": {
+          "runs": true,
+          "loss_converged": false,
+          "metric_passed": null
+        },
+        "final_loss": 0.6891370415687561,
+        "final_metric": null,
+        "steps_used": 300,
+        "elapsed": 11.070594310760498,
+        "exit_code": 0,
+        "stdout_tail": "{\"final_loss\": 0.6891370415687561, \"steps_used\": 300}\n",
+        "stderr_tail": "",
+        "reason": null,
+        "extra": {},
+        "passed": false
+      }
+    },
+    {
+      "fixture_slug": "tiny/exploding_grad/0",
+      "pathology_class": "exploding_grad",
+      "host_env": "tiny",
+      "elapsed": 22.25086522102356,
+      "fix_passes": true,
+      "bug_correctly_fails": true,
+      "overall_pass": true,
+      "bug": {
+        "fixture_slug": "tiny/exploding_grad/0",
+        "variant": "bug",
+        "checks": {
+          "runs": true,
+          "loss_converged": false,
+          "metric_passed": null
+        },
+        "final_loss": NaN,
+        "final_metric": null,
+        "steps_used": 200,
+        "elapsed": 10.814807891845703,
+        "exit_code": 0,
+        "stdout_tail": "",
+        "stderr_tail": "",
+        "reason": null,
+        "extra": {},
+        "passed": false
+      },
+      "patched": {
+        "fixture_slug": "tiny/exploding_grad/0",
+        "variant": "patched",
+        "checks": {
+          "runs": true,
+          "loss_converged": true,
+          "metric_passed": null
+        },
+        "final_loss": 0.04095953330397606,
+        "final_metric": null,
+        "steps_used": 200,
+        "elapsed": 11.417375564575195,
+        "exit_code": 0,
+        "stdout_tail": "",
+        "stderr_tail": "",
+        "reason": null,
+        "extra": {},
+        "passed": true
+      }
+    },
+    {
+      "fixture_slug": "tiny/lr_schedule_mismatch/0",
+      "pathology_class": "lr_schedule_mismatch",
+      "host_env": "tiny",
+      "elapsed": 22.56551432609558,
+      "fix_passes": true,
+      "bug_correctly_fails": false,
+      "overall_pass": false,
+      "bug": {
+        "fixture_slug": "tiny/lr_schedule_mismatch/0",
+        "variant": "bug",
+        "checks": {
+          "runs": true,
+          "loss_converged": true,
+          "metric_passed": null
+        },
+        "final_loss": 0.00038137976662255824,
+        "final_metric": null,
+        "steps_used": 400,
+        "elapsed": 11.048046350479126,
+        "exit_code": 0,
+        "stdout_tail": "{\"final_loss\": 0.00038137976662255824, \"steps_used\": 400}\n",
+        "stderr_tail": "",
+        "reason": null,
+        "extra": {},
+        "passed": true
+      },
+      "patched": {
+        "fixture_slug": "tiny/lr_schedule_mismatch/0",
+        "variant": "patched",
+        "checks": {
+          "runs": true,
+          "loss_converged": true,
+          "metric_passed": null
+        },
+        "final_loss": 0.0007125477422960103,
+        "final_metric": null,
+        "steps_used": 400,
+        "elapsed": 11.495790958404541,
+        "exit_code": 0,
+        "stdout_tail": "{\"final_loss\": 0.0007125477422960103, \"steps_used\": 400}\n",
+        "stderr_tail": "",
+        "reason": null,
+        "extra": {},
+        "passed": true
+      }
+    },
+    {
+      "fixture_slug": "tiny/lr_too_high/0",
+      "pathology_class": "lr_too_high",
+      "host_env": "tiny",
+      "elapsed": 25.381742477416992,
+      "fix_passes": true,
+      "bug_correctly_fails": false,
+      "overall_pass": false,
+      "bug": {
+        "fixture_slug": "tiny/lr_too_high/0",
+        "variant": "bug",
+        "checks": {
+          "runs": true,
+          "loss_converged": true,
+          "metric_passed": null
+        },
+        "final_loss": 0.0,
+        "final_metric": null,
+        "steps_used": 300,
+        "elapsed": 13.04068922996521,
+        "exit_code": 0,
+        "stdout_tail": "{\"final_loss\": 0.0, \"steps_used\": 300}\n",
+        "stderr_tail": "",
+        "reason": null,
+        "extra": {},
+        "passed": true
+      },
+      "patched": {
+        "fixture_slug": "tiny/lr_too_high/0",
+        "variant": "patched",
+        "checks": {
+          "runs": true,
+          "loss_converged": true,
+          "metric_passed": null
+        },
+        "final_loss": 0.00045409915037453175,
+        "final_metric": null,
+        "steps_used": 300,
+        "elapsed": 12.317260265350342,
+        "exit_code": 0,
+        "stdout_tail": "{\"final_loss\": 0.00045409915037453175, \"steps_used\": 300}\n",
+        "stderr_tail": "",
+        "reason": null,
+        "extra": {},
+        "passed": true
+      }
+    },
+    {
+      "fixture_slug": "tiny/missing_normalize/0",
+      "pathology_class": "missing_normalize",
+      "host_env": "tiny",
+      "elapsed": 23.755789518356323,
+      "fix_passes": true,
+      "bug_correctly_fails": true,
+      "overall_pass": true,
+      "bug": {
+        "fixture_slug": "tiny/missing_normalize/0",
+        "variant": "bug",
+        "checks": {
+          "runs": true,
+          "loss_converged": false,
+          "metric_passed": null
+        },
+        "final_loss": 2639.23779296875,
+        "final_metric": null,
+        "steps_used": 300,
+        "elapsed": 11.374263525009155,
+        "exit_code": 0,
+        "stdout_tail": "",
+        "stderr_tail": "",
+        "reason": null,
+        "extra": {},
+        "passed": false
+      },
+      "patched": {
+        "fixture_slug": "tiny/missing_normalize/0",
+        "variant": "patched",
+        "checks": {
+          "runs": true,
+          "loss_converged": true,
+          "metric_passed": null
+        },
+        "final_loss": 0.0037247457075864077,
+        "final_metric": null,
+        "steps_used": 300,
+        "elapsed": 12.36240816116333,
+        "exit_code": 0,
+        "stdout_tail": "",
+        "stderr_tail": "",
+        "reason": null,
+        "extra": {},
+        "passed": true
+      }
+    },
+    {
+      "fixture_slug": "tiny/model_eval_not_called/0",
+      "pathology_class": "model_eval_not_called",
+      "host_env": "tiny",
+      "elapsed": 22.561149835586548,
+      "fix_passes": true,
+      "bug_correctly_fails": false,
+      "overall_pass": false,
+      "bug": {
+        "fixture_slug": "tiny/model_eval_not_called/0",
+        "variant": "bug",
+        "checks": {
+          "runs": true,
+          "loss_converged": true,
+          "metric_passed": true
+        },
+        "final_loss": 0.00263489899225533,
+        "final_metric": 1.0,
+        "steps_used": 200,
+        "elapsed": 11.07214641571045,
+        "exit_code": 0,
+        "stdout_tail": "{\"final_loss\": 0.00263489899225533, \"final_metric\": 1.0, \"steps_used\": 200}\n",
+        "stderr_tail": "",
+        "reason": null,
+        "extra": {},
+        "passed": true
+      },
+      "patched": {
+        "fixture_slug": "tiny/model_eval_not_called/0",
+        "variant": "patched",
+        "checks": {
+          "runs": true,
+          "loss_converged": true,
+          "metric_passed": true
+        },
+        "final_loss": 0.00263489899225533,
+        "final_metric": 1.0,
+        "steps_used": 200,
+        "elapsed": 11.466521978378296,
+        "exit_code": 0,
+        "stdout_tail": "{\"final_loss\": 0.00263489899225533, \"final_metric\": 1.0, \"steps_used\": 200}\n",
+        "stderr_tail": "",
+        "reason": null,
+        "extra": {},
+        "passed": true
+      }
+    },
+    {
+      "fixture_slug": "tiny/vanishing_grad/0",
+      "pathology_class": "vanishing_grad",
+      "host_env": "tiny",
+      "elapsed": 30.588459730148315,
+      "fix_passes": true,
+      "bug_correctly_fails": true,
+      "overall_pass": true,
+      "bug": {
+        "fixture_slug": "tiny/vanishing_grad/0",
+        "variant": "bug",
+        "checks": {
+          "runs": true,
+          "loss_converged": false,
+          "metric_passed": null
+        },
+        "final_loss": 0.688546359539032,
+        "final_metric": null,
+        "steps_used": 400,
+        "elapsed": 15.269993782043457,
+        "exit_code": 0,
+        "stdout_tail": "",
+        "stderr_tail": "",
+        "reason": null,
+        "extra": {},
+        "passed": false
+      },
+      "patched": {
+        "fixture_slug": "tiny/vanishing_grad/0",
+        "variant": "patched",
+        "checks": {
+          "runs": true,
+          "loss_converged": true,
+          "metric_passed": null
+        },
+        "final_loss": 0.0005286744562909007,
+        "final_metric": null,
+        "steps_used": 400,
+        "elapsed": 15.286389827728271,
+        "exit_code": 0,
+        "stdout_tail": "",
+        "stderr_tail": "",
+        "reason": null,
+        "extra": {},
+        "passed": true
+      }
+    }
+  ]
+}

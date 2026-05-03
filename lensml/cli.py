@@ -131,12 +131,12 @@ def bench_run(
         f"{summary.fix_pass}/{summary.total}; elapsed {summary.elapsed:.1f}s"
     )
     for run in summary.runs:
-        flag = "✓" if run.overall_pass else "✗"
-        typer.echo(f"  {flag} {run.fixture_slug:40s}  ({run.elapsed:.1f}s)")
+        flag = "PASS" if run.overall_pass else "FAIL"
+        typer.echo(f"  [{flag}] {run.fixture_slug:40s}  ({run.elapsed:.1f}s)")
     if out is not None:
         report = build_report(summary)
         md, js = report.write(Path(out))
-        typer.echo(f"  → wrote {md} and {js}")
+        typer.echo(f"  -> wrote {md} and {js}")
 
 
 @bench_app.command("baseline")
@@ -189,9 +189,14 @@ def bench_baseline(
         f"elapsed {summary.elapsed:.1f}s"
     )
     for r in summary.results:
-        flag = "✓" if r.fix_passes else ("⊘" if r.diff_applied else "✗")
+        if r.fix_passes:
+            flag = "PASS"
+        elif r.diff_applied:
+            flag = "DIFF"
+        else:
+            flag = "FAIL"
         diag = r.diagnosed_class or "(unparsed)"
-        typer.echo(f"  {flag} {r.fixture_slug:40s}  {diag}")
+        typer.echo(f"  [{flag}] {r.fixture_slug:40s}  {diag}")
     if out is not None:
         out_path = Path(out)
         out_path.mkdir(parents=True, exist_ok=True)
@@ -200,7 +205,7 @@ def bench_baseline(
             _json.dumps(summary.to_dict(), default=str, indent=2),
             encoding="utf-8",
         )
-        typer.echo(f"  → wrote {target}")
+        typer.echo(f"  -> wrote {target}")
 
 
 @bench_app.command("report")
@@ -441,7 +446,7 @@ def record(
                 ev = {**ev, "run_id": run_id}
             f.write(json.dumps(ev, default=str))
             f.write("\n")
-    typer.echo(f"wrote {len(events)} events → {out}")
+    typer.echo(f"wrote {len(events)} events -> {out}")
 
 
 if __name__ == "__main__":
