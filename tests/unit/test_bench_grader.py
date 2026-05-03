@@ -198,6 +198,10 @@ def test_apply_diff_context_mismatch_raises() -> None:
         "tiny/dead_relu/0",
         "tiny/missing_normalize/0",
         "tiny/lr_too_high/0",
+        "tiny/bad_init/0",
+        "tiny/vanishing_grad/0",
+        "tiny/model_eval_not_called/0",
+        "tiny/lr_schedule_mismatch/0",
     ],
 )
 def test_packaged_fixture_diff_applies_cleanly(slug: str) -> None:

@@ -1,0 +1,23 @@
+--- a/bug.py
++++ b/bug.py
+@@ -31,15 +31,15 @@
+         super().__init__()
+         self.net = nn.Sequential(
+             nn.Linear(DIM, HID),
+-            nn.Sigmoid(),
++            nn.GELU(),
+             nn.Linear(HID, HID),
+-            nn.Sigmoid(),
++            nn.GELU(),
+             nn.Linear(HID, HID),
+-            nn.Sigmoid(),
++            nn.GELU(),
+             nn.Linear(HID, HID),
+-            nn.Sigmoid(),
++            nn.GELU(),
+             nn.Linear(HID, HID),
+-            nn.Sigmoid(),
++            nn.GELU(),
+             nn.Linear(HID, N_CLASSES),
+         )
+ 

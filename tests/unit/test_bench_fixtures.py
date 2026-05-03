@@ -142,14 +142,44 @@ def test_discover_fixtures_skips_dirs_without_meta(tmp_path: Path) -> None:
 
 
 def test_discover_fixtures_default_root_finds_packaged_fixtures() -> None:
-    """The 4 reference tiny fixtures shipped with step 4.1 must all load."""
+    """The packaged tiny fixtures must all load. Step 4.1 shipped 4;
+    step 4.2 added 4 more so all 8 v1 detector classes (plus one
+    stretch class) have working fixtures."""
     found = discover_fixtures()
     slugs = {f.slug for f in found}
-    assert "tiny/exploding_grad/0" in slugs
-    assert "tiny/dead_relu/0" in slugs
-    assert "tiny/missing_normalize/0" in slugs
-    assert "tiny/lr_too_high/0" in slugs
-    # Every packaged fixture must validate.
+    expected = {
+        "tiny/exploding_grad/0",
+        "tiny/dead_relu/0",
+        "tiny/missing_normalize/0",
+        "tiny/lr_too_high/0",
+        "tiny/bad_init/0",
+        "tiny/vanishing_grad/0",
+        "tiny/model_eval_not_called/0",
+        "tiny/lr_schedule_mismatch/0",
+    }
+    assert expected <= slugs, f"missing: {expected - slugs}"
     for f in found:
         assert f.meta.host_env in VALID_ENVS
         assert f.meta.pathology_class in VALID_PATHOLOGY_CLASSES
+
+
+def test_all_v1_detector_classes_have_tiny_fixture() -> None:
+    """Every detector class lensml ships with v1 must have at least one
+    tiny fixture so the bench has full v1 coverage."""
+    v1_detectors = {
+        "exploding_grad",
+        "lr_too_high",
+        "dead_relu",
+        "missing_normalize",
+        "model_eval_not_called",
+        "bad_init",
+        "vanishing_grad",
+    }
+    # dataloader_bottleneck is structural / I/O-bound — lives in small/medium
+    # envs where there's real disk contention. Documented as out-of-scope
+    # for the tiny bench in lensml/bench/fixtures/README.md.
+
+    found = discover_fixtures()
+    tiny_classes = {f.meta.pathology_class for f in found if f.meta.host_env == "tiny"}
+    missing = v1_detectors - tiny_classes
+    assert not missing, f"v1 detector classes without a tiny fixture: {sorted(missing)}"

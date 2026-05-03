@@ -1,0 +1,10 @@
+{
+  "pathology_class": "bad_init",
+  "difficulty": "easy",
+  "host_env": "tiny",
+  "max_steps": 300,
+  "loss_threshold": 0.3,
+  "metric_threshold": null,
+  "metric_name": null,
+  "notes": "Linear classifier initialized with std=10; step-0 CE >> log(2). Fix: kaiming_normal_ init."
+}

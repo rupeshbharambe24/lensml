@@ -1,0 +1,13 @@
+--- a/bug.py
++++ b/bug.py
+@@ -26,9 +26,7 @@
+ mu = torch.tensor([-1.5, 1.5])
+ 
+ model = nn.Linear(DIM, N_CLASSES)
+-# Bug: huge weights = confident-wrong predictions = enormous CE at init.
+-with torch.no_grad():
+-    model.weight.normal_(mean=0.0, std=10.0)
++torch.nn.init.kaiming_normal_(model.weight)
+ 
+ optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
+ criterion = nn.CrossEntropyLoss()

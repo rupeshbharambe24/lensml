@@ -1,0 +1,10 @@
+{
+  "pathology_class": "vanishing_grad",
+  "difficulty": "medium",
+  "host_env": "tiny",
+  "max_steps": 400,
+  "loss_threshold": 0.4,
+  "metric_threshold": null,
+  "metric_name": null,
+  "notes": "6-layer sigmoid MLP — gradients vanish through depth. Fix: replace Sigmoid with GELU."
+}
