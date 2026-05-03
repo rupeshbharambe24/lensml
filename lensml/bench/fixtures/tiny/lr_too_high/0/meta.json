@@ -1,0 +1,10 @@
+{
+  "pathology_class": "lr_too_high",
+  "difficulty": "easy",
+  "host_env": "tiny",
+  "max_steps": 300,
+  "loss_threshold": 0.2,
+  "metric_threshold": null,
+  "metric_name": null,
+  "notes": "Linear classifier on clean separable data with lr=10; fix lowers lr to 0.1."
+}

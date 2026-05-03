@@ -1,0 +1,10 @@
+{
+  "pathology_class": "missing_normalize",
+  "difficulty": "easy",
+  "host_env": "tiny",
+  "max_steps": 300,
+  "loss_threshold": 0.4,
+  "metric_threshold": null,
+  "metric_name": null,
+  "notes": "Linear classifier on uint8-style inputs; fix subtracts mean / divides by std before forward."
+}

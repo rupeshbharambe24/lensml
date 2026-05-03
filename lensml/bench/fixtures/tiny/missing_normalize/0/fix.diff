@@ -1,0 +1,10 @@
+--- a/bug.py
++++ b/bug.py
+@@ -36,6 +36,7 @@
+     y = torch.randint(0, N_CLASSES, (BATCH,))
+     x = torch.randn(BATCH, DIM) * 30.0 + mu[y].unsqueeze(1)
+     x = x.clamp(0.0, 255.0)
++    x = (x - 127.5) / 64.0
+     logits = model(x)
+     loss = criterion(logits, y)
+     optimizer.zero_grad(set_to_none=True)

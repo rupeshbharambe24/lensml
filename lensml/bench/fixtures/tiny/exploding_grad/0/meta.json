@@ -1,0 +1,10 @@
+{
+  "pathology_class": "exploding_grad",
+  "difficulty": "easy",
+  "host_env": "tiny",
+  "max_steps": 200,
+  "loss_threshold": 1.0,
+  "metric_threshold": null,
+  "metric_name": null,
+  "notes": "Synthetic-Gaussian MLP with lr=0.5 and no gradient clipping. Fix: clip_grad_norm_ + lower lr."
+}

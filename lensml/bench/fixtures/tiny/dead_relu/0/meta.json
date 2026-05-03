@@ -1,0 +1,10 @@
+{
+  "pathology_class": "dead_relu",
+  "difficulty": "easy",
+  "host_env": "tiny",
+  "max_steps": 300,
+  "loss_threshold": 0.55,
+  "metric_threshold": null,
+  "metric_name": null,
+  "notes": "MLP with bias=-5 on first layer; ReLU kills almost every unit. Fix: LeakyReLU(0.01)."
+}
