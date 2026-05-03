@@ -33,9 +33,11 @@ def test_watch_emits_guidance_and_exits_nonzero() -> None:
     assert "lensml.watch" in result.output
 
 
-def test_bench_emits_guidance_and_exits_nonzero() -> None:
+def test_bench_with_no_subcommand_shows_help() -> None:
+    """`lensml bench` is now a Typer subgroup — no args prints help."""
     result = runner.invoke(app, ["bench"])
-    assert result.exit_code == 2
+    assert "list" in result.output
+    assert "run" in result.output
 
 
 def test_replay_emits_guidance_and_exits_nonzero() -> None:

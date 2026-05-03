@@ -1,15 +1,15 @@
 --- a/bug.py
 +++ b/bug.py
-@@ -23,7 +23,7 @@
- N_CLASSES = 2
+@@ -30,7 +30,7 @@
+ mu = torch.tensor([-1.0, 1.0])
  
  model = nn.Sequential(nn.Linear(DIM, 32), nn.ReLU(), nn.Linear(32, N_CLASSES))
--optimizer = torch.optim.SGD(model.parameters(), lr=0.5)  # too high
+-optimizer = torch.optim.SGD(model.parameters(), lr=5.0)  # too high → diverges
 +optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
  criterion = nn.CrossEntropyLoss()
  
  last_loss = float("nan")
-@@ -34,6 +34,7 @@
+@@ -41,6 +41,7 @@
      loss = criterion(logits, y)
      optimizer.zero_grad(set_to_none=True)
      loss.backward()

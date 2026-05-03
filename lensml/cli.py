@@ -76,11 +76,67 @@ def watch(script: str) -> None:
     raise typer.Exit(code=2)
 
 
-@app.command(name="bench")
-def bench_cmd(action: str = "run") -> None:
-    """Run the lensml-bench fixture suite (v0.1 build week 4)."""
-    typer.echo("lensml bench lands in week 4 of the build calendar.", err=True)
-    raise typer.Exit(code=2)
+bench_app = typer.Typer(
+    name="bench",
+    help="lensml-bench: run fixtures, list fixtures, render reports.",
+    no_args_is_help=True,
+)
+app.add_typer(bench_app, name="bench")
+
+
+@bench_app.command("list")
+def bench_list(
+    env: str | None = typer.Option(None, "--env", help="Filter by host env."),
+) -> None:
+    """List packaged bench fixtures (plan §6.1)."""
+    from lensml.bench.fixtures import discover_fixtures
+
+    fixtures = discover_fixtures()
+    if env is not None:
+        fixtures = [f for f in fixtures if f.meta.host_env == env]
+    if not fixtures:
+        typer.echo("(no fixtures match)")
+        return
+    for f in fixtures:
+        typer.echo(f"{f.slug:40s}  {f.meta.difficulty:7s}  loss<{f.meta.loss_threshold}")
+
+
+@bench_app.command("run")
+def bench_run(
+    env: str | None = typer.Option(None, "--env", help="Filter by host env."),
+    pathology: str | None = typer.Option(None, "--pathology", help="Filter by pathology_class."),
+    force: bool = typer.Option(
+        False, "--force", help="Re-run all fixtures (ignore cached passes)."
+    ),
+    out: str | None = typer.Option(
+        None, "--out", help="Write report.md/report.json under this directory."
+    ),
+    cache: str | None = typer.Option(None, "--cache", help="Path to a JSON cache file for resume."),
+    timeout: float = typer.Option(
+        120.0, "--timeout", help="Per-script subprocess timeout (seconds)."
+    ),
+) -> None:
+    """Run packaged fixtures end-to-end and print summary (plan §6, §8 D24)."""
+    from lensml.bench.report import build_report
+    from lensml.bench.runner import BenchRunner
+
+    runner = BenchRunner(
+        timeout=timeout,
+        cache_path=Path(cache) if cache else None,
+    )
+    summary = runner.run_all(env=env, pathology=pathology, force=force)
+    typer.echo(
+        f"bench: {summary.overall_pass}/{summary.total} overall pass "
+        f"({summary.overall_pass_rate:.0%}); fix passes "
+        f"{summary.fix_pass}/{summary.total}; elapsed {summary.elapsed:.1f}s"
+    )
+    for run in summary.runs:
+        flag = "✓" if run.overall_pass else "✗"
+        typer.echo(f"  {flag} {run.fixture_slug:40s}  ({run.elapsed:.1f}s)")
+    if out is not None:
+        report = build_report(summary)
+        md, js = report.write(Path(out))
+        typer.echo(f"  → wrote {md} and {js}")
 
 
 def _post_event(server: str, event: dict[str, Any]) -> None:

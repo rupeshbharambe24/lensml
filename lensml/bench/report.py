@@ -1,13 +1,139 @@
-"""Benchmark report generator.
+"""Benchmark report generator (plan §6.5, §8 D26).
 
-Plan §6.5 — `bench/results/{date}/report.md` + `report.json`. Includes:
-    - Per-class confusion matrix (where the agent confuses pathologies)
-    - Latency histogram
-    - Cost breakdown (always $0 — make this a slide)
-    - "What doesn't work yet" section — honest about which classes lensml
-      fails on. Japanese judges (Round 3) respect this.
+Produces ``report.md`` + ``report.json`` from a ``BenchSummary``.
+
+The full plan-spec report (per-class confusion matrix, latency
+histogram, $0 cost slide, "what doesn't work yet") needs the LLM-only
+baseline data which lands in step 4.4. v1 here ships:
+
+    - markdown summary header (totals, pass rates, elapsed)
+    - per-fixture pass/fail table
+    - per-pathology aggregate
+    - "what doesn't work yet" section enumerating fixtures whose
+      ``patched`` variant didn't pass
+
+…which is enough for the bench infrastructure tests (step 4.3 exit
+criterion) and gets fleshed out further in step 4.5.
 """
 
 from __future__ import annotations
 
-# Implemented Day 26.
+import json
+import time
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from lensml.bench.runner import BenchSummary, FixtureRun
+
+
+@dataclass
+class Report:
+    summary_dict: dict
+    markdown: str
+    generated_ts: float = field(default_factory=time.time)
+
+    def write(self, dir_path: Path) -> tuple[Path, Path]:
+        """Write report.md + report.json into ``dir_path``. Returns paths."""
+        dir_path.mkdir(parents=True, exist_ok=True)
+        md_path = dir_path / "report.md"
+        json_path = dir_path / "report.json"
+        md_path.write_text(self.markdown, encoding="utf-8")
+        json_path.write_text(
+            json.dumps(self.summary_dict, default=str, indent=2),
+            encoding="utf-8",
+        )
+        return md_path, json_path
+
+
+def _render_per_fixture_table(runs: list[FixtureRun]) -> str:
+    if not runs:
+        return "_(no fixtures)_\n"
+    lines = [
+        "| fixture | pathology | env | bug fails | fix passes | overall | elapsed |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for r in runs:
+        lines.append(
+            f"| `{r.fixture_slug}` | {r.pathology_class} | {r.host_env} | "
+            f"{'✓' if r.bug_correctly_fails else '✗'} | "
+            f"{'✓' if r.fix_passes else '✗'} | "
+            f"{'✓' if r.overall_pass else '✗'} | "
+            f"{r.elapsed:.1f}s |"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def _render_per_pathology(runs: list[FixtureRun]) -> str:
+    by_class: dict[str, list[FixtureRun]] = {}
+    for r in runs:
+        by_class.setdefault(r.pathology_class, []).append(r)
+    if not by_class:
+        return "_(no fixtures)_\n"
+    lines = [
+        "| pathology | n | overall pass | fix-pass rate |",
+        "| --- | --- | --- | --- |",
+    ]
+    for cls in sorted(by_class):
+        bucket = by_class[cls]
+        n = len(bucket)
+        ok = sum(1 for r in bucket if r.overall_pass)
+        fix_ok = sum(1 for r in bucket if r.fix_passes)
+        lines.append(f"| {cls} | {n} | {ok}/{n} | {fix_ok}/{n} |")
+    return "\n".join(lines) + "\n"
+
+
+def _render_failures(runs: list[FixtureRun]) -> str:
+    failures = [r for r in runs if not r.overall_pass]
+    if not failures:
+        return "_All fixtures pass cleanly._\n"
+    lines = []
+    for r in failures:
+        bug_reason = r.bug.reason or "(passed all checks — bug isn't a bug?)"
+        patched_reason = r.patched.reason or "(passed all checks but classified failed)"
+        lines.append(f"- **`{r.fixture_slug}`** ({r.pathology_class})")
+        if not r.bug_correctly_fails:
+            lines.append(f"  - bug.py unexpectedly passed grader: {bug_reason}")
+        if not r.fix_passes:
+            lines.append(f"  - patched.py failed grader: {patched_reason}")
+    return "\n".join(lines) + "\n"
+
+
+def render_markdown(summary: BenchSummary, *, title: str = "lensml-bench report") -> str:
+    pct = lambda x: f"{x * 100:.1f}%"  # noqa: E731
+    out: list[str] = []
+    out.append(f"# {title}\n")
+    out.append(
+        f"_{time.strftime('%Y-%m-%d %H:%M:%S')} — "
+        f"{summary.total} fixtures, {summary.elapsed:.1f}s_\n"
+    )
+    out.append("")
+    out.append("## Headline\n")
+    out.append(
+        f"- **Overall pass:** {summary.overall_pass}/{summary.total}  "
+        f"({pct(summary.overall_pass_rate)})\n"
+        f"- **Fix passes grader:** {summary.fix_pass}/{summary.total}  "
+        f"({pct(summary.fix_pass_rate)})\n"
+        f"- **Bug correctly fails:** {summary.bug_correctly_fails}/{summary.total}\n"
+    )
+    out.append("")
+    out.append("## Per-pathology\n")
+    out.append(_render_per_pathology(summary.runs))
+    out.append("")
+    out.append("## Per-fixture\n")
+    out.append(_render_per_fixture_table(summary.runs))
+    out.append("")
+    out.append("## What doesn't work yet\n")
+    out.append(_render_failures(summary.runs))
+    return "\n".join(out)
+
+
+def build_report(summary: BenchSummary, *, title: str = "lensml-bench report") -> Report:
+    return Report(
+        summary_dict=summary.to_dict(),
+        markdown=render_markdown(summary, title=title),
+    )
+
+
+__all__ = ["Report", "build_report", "render_markdown"]
