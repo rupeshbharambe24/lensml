@@ -1,0 +1,82 @@
+# mkdocs-material config — deploys to GitHub Pages (plan §8 D28).
+#
+# Build:    uv run mkdocs build
+# Preview:  uv run mkdocs serve   → http://127.0.0.1:8001
+# Deploy:   uv run mkdocs gh-deploy --force   (pushes to gh-pages branch)
+#
+# GitHub Pages is on the FREE tier and serves the gh-pages branch
+# automatically — no separate hosting cost. The custom domain stays
+# optional for v1; the default URL
+# (https://rupeshbharambe24.github.io/lensml/) is enough for Round 1.
+
+site_name: lensml
+site_description: AI agent that supervises your ML training runs.
+site_url: https://rupeshbharambe24.github.io/lensml/
+repo_url: https://github.com/rupeshbharambe24/lensml
+repo_name: rupeshbharambe24/lensml
+copyright: Copyright &copy; 2026 Rupesh Bharambe — Apache 2.0
+docs_dir: docs
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - content.code.copy
+    - content.code.annotate
+    - search.suggest
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: cyan
+      accent: cyan
+      toggle:
+        icon: material/weather-sunny
+        name: Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: cyan
+      accent: cyan
+      toggle:
+        icon: material/weather-night
+        name: Dark mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+
+nav:
+  - Home: index.md
+  - Architecture: DESIGN.md
+  - Quickstart: quickstart.md
+  - Detectors & fixes: detectors.md
+  - Bench: bench.md
+  - Roadmap: roadmap.md
+
+plugins:
+  - search
+
+# _BUILDING.md is dev-facing — keep it out of the nav.
+exclude_docs: |
+  _BUILDING.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/rupeshbharambe24/lensml

@@ -1,0 +1,38 @@
+name: docs
+
+# Build mkdocs-material docs and publish to the gh-pages branch.
+# Plan §8 D28 — GitHub Pages free tier.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - ".github/workflows/docs.yml"
+      - "pyproject.toml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write   # mkdocs gh-deploy pushes to gh-pages
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Install docs deps
+        run: uv sync --extra docs
+
+      - name: Build (strict)
+        run: uv run mkdocs build --strict
+
+      - name: Deploy
+        if: github.ref == 'refs/heads/main'
+        run: uv run mkdocs gh-deploy --force --no-history

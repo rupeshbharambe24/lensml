@@ -16,31 +16,41 @@
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue.svg)](pyproject.toml)
 [![Status](https://img.shields.io/badge/status-alpha%20%7C%20pre--release-orange.svg)](lensml-implementation-sequence.md)
 
-> **Status: pre-release alpha.** Built for the FAR AWAY hackathon (June 7,
-> 2026). The build is on a 30-day calendar — see
+> **Status: pre-release alpha.** Built solo on free tiers for the FAR
+> AWAY hackathon (June 7, 2026). What's working today: trainer-side
+> `lensml.watch()` API for raw PyTorch + Lightning + HF Trainer ✓, all
+> 8 v1 detectors ✓, all 8 libcst fix templates ✓, FastAPI server +
+> Next.js dashboard with command palette + EN/JA i18n + privacy mode
+> toggle ✓, checkpoint-aware resume + supervisor ✓, replay mode +
+> 3 canned scenarios ✓, lensml-bench scaffolding + 8 tiny fixtures +
+> LLM-only baseline runner ✓. See
 > [lensml-implementation-sequence.md](lensml-implementation-sequence.md)
-> for what's working today vs. what's coming. End-of-Phase-1 (Week 1)
-> state: trainer-side `lensml.watch()` API ✓, FastAPI server ✓, Next.js
-> dashboard with live SSE chart ✓, first detector (`exploding_grad`) ✓.
-> Lightning + HF integrations, libcst patches, LLM agent, and checkpoint
-> resume land in Phases 2–4.
+> for the day-by-day build log.
 
 ## What it does
 
 lensml watches your PyTorch / PyTorch Lightning / HuggingFace Trainer training run in real time. When it detects a pathology (exploding gradients, dead ReLUs, missing normalization, `model.eval()` not called, etc.), it pauses training, diagnoses the cause with an LLM agent, generates a code patch via libcst AST rewrite, and presents a diff in a local browser dashboard. On your approval (one keystroke), it commits the patch to a git branch, checkpoints model + optimizer + RNG + sampler state, and resumes training from the checkpoint with the fixed code.
 
 - Three integrations: raw PyTorch, PyTorch Lightning, HuggingFace Trainer
-- Eight v1 pathology classes (see [docs](docs/))
-- Free LLM tier routing across Groq / Cerebras / Gemini / OpenRouter via LiteLLM
-- Optional local privacy mode via Ollama
-- 48-fixture benchmark suite (`lensml-bench`)
+- Eight v1 pathology classes — `exploding_grad`, `dead_relu`, `lr_too_high`, `missing_normalize`, `model_eval_not_called`, `bad_init`, `vanishing_grad`, `dataloader_bottleneck`
+- Eight libcst-backed fix templates with idempotent diffs
+- Free LLM tier routing across Groq / Cerebras / Gemini / OpenRouter / Mistral via LiteLLM
+- Optional local privacy mode (Ollama scaffold + canned diagnoses)
+- `lensml-bench`: fixture loader, deterministic grader, runner, LLM-only baseline arm, side-by-side report
 
 ## 30-second install
 
 ```bash
-pip install lensml
-echo "import lensml; lensml.watch(model, optimizer, dataloader)" >> train.py
-lensml dashboard  # opens browser
+pip install lensml                          # core package
+pip install "lensml[lightning,transformers]" # optional integrations
+lensml dashboard &                           # localhost:8000 + dashboard
+python train.py                              # your script with `lensml.watch(...)` added
+```
+
+```python
+# In train.py — add one line:
+import lensml
+handle = lensml.watch(model, optimizer)      # hooks installed; telemetry streams
 ```
 
 ## Why lensml?
@@ -66,9 +76,39 @@ Training subprocess  ─ZMQ PUB/SUB→  FastAPI server  ─SSE→  Next.js dashb
 
 ## Benchmarks
 
-48 fixtures across 12 pathology classes × 4 host environments (MNIST/MLP, CIFAR/ResNet-18, SST-2/DistilBERT, WikiText/GPT-2). Metrics: top-1 / top-3 diagnosis accuracy, pass@1 / pass@3 fix rate, time-to-diagnose, tokens-to-diagnose, cost-to-diagnose.
+`lensml-bench` is the reproducibility story — every claim above is
+gradeable. v1 ships **8 Tiny fixtures** (one per detector class,
+synthetic-data MLPs that run in seconds, no torchvision dep), the
+deterministic grader, the runner, and the LLM-only baseline arm
+(plan §6.3 — the credibility lynchpin). Medium/Large envs
+(DistilBERT/SST-2, GPT-2/WikiText-2) are documented v0.2 work.
 
-Results: `lensml/bench/results/` (populated Week 4 of build).
+```bash
+lensml bench list                                  # 8 tiny fixtures, all v1 classes
+lensml bench run --out bench/results/$(date +%F)/  # full + per-pathology + report.md
+lensml bench baseline --provider groq --out …      # the credibility arm
+lensml bench report --bench …/report.json --baseline …/baseline-groq.json --out …
+```
+
+The report renders: confusion matrix per baseline, latency histogram
+(ASCII), $0 cost-breakdown table, "what doesn't work yet" failure
+log. Sample skeleton:
+
+| arm | n | diagnosis acc | fix-pass rate | overall pass |
+| --- | --- | --- | --- | --- |
+| **lensml-full** | 8 | n/a (unique) | TBD | TBD |
+| llm-only · groq | 8 | TBD | TBD | TBD |
+| llm-only · gemini | 8 | TBD | TBD | TBD |
+
+_Numbers populate after the external Colab/Kaggle GPU runs (§6.2);
+the assembly machinery is in place._
+
+## Links
+
+- 🌐 Landing page: [lensml.vercel.app](https://lensml.vercel.app) (Vercel free tier)
+- 📖 Docs: [rupeshbharambe24.github.io/lensml](https://rupeshbharambe24.github.io/lensml/) (GitHub Pages free tier)
+- 🧪 Source + issues: [github.com/rupeshbharambe24/lensml](https://github.com/rupeshbharambe24/lensml)
+- 📋 Day-by-day build log: [lensml-implementation-sequence.md](lensml-implementation-sequence.md)
 
 ## Roadmap
 

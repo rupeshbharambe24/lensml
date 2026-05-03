@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>lensml — the AI agent that supervises your ML training</title>
+  <meta name="description" content="Open-source AI agent that watches your PyTorch training run in real time, diagnoses pathologies, proposes libcst-level patches, and resumes from checkpoint. Free-tier friendly." />
+  <meta property="og:title" content="lensml" />
+  <meta property="og:description" content="The AI agent that supervises your ML training runs." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://lensml.vercel.app/" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0a'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='ui-monospace,monospace' font-size='34' fill='%23fafafa'%3El%3C/text%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --fg: #fafafa;
+      --muted: #a3a3a3;
+      --line: #262626;
+      --accent: #06b6d4;
+      --accent-soft: rgba(6, 182, 212, 0.15);
+    }
+    * { box-sizing: border-box; }
+    html, body { background: var(--bg); color: var(--fg); margin: 0; padding: 0; }
+    body {
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 760px; margin: 0 auto; padding: 4rem 1.5rem; }
+    code, pre, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    h1 { font-size: 2.5rem; margin: 0 0 0.5rem; letter-spacing: -0.02em; }
+    h1 .dot { color: var(--accent); }
+    h2 {
+      font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--muted); margin-top: 3rem; margin-bottom: 1rem; font-weight: 600;
+    }
+    p { margin: 0 0 1rem; color: #d4d4d4; }
+    p.lede { font-size: 1.25rem; color: #e5e5e5; }
+    a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color .15s; }
+    a:hover { border-bottom-color: var(--accent); }
+    .pill {
+      display: inline-block; padding: 0.25rem 0.6rem; border-radius: 999px;
+      background: var(--accent-soft); color: var(--accent);
+      font-size: 0.7rem; font-weight: 500; margin-bottom: 1.25rem;
+      border: 1px solid rgba(6, 182, 212, 0.35);
+    }
+    pre {
+      background: #111; border: 1px solid var(--line); border-radius: 8px;
+      padding: 1rem 1.2rem; overflow-x: auto; font-size: 0.85rem; color: #e5e5e5;
+      margin: 0 0 1.25rem;
+    }
+    .feature-grid {
+      display: grid; gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin: 1rem 0 0;
+    }
+    .feature {
+      border: 1px solid var(--line); border-radius: 8px; padding: 1rem 1.1rem;
+      background: rgba(255, 255, 255, 0.015);
+    }
+    .feature h3 {
+      font-size: 0.95rem; margin: 0 0 0.4rem; color: #f5f5f5; font-weight: 600;
+    }
+    .feature p { font-size: 0.85rem; color: var(--muted); margin: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 0 0 1.5rem; font-size: 0.85rem; }
+    th, td { padding: 0.55rem 0.5rem; text-align: left; border-bottom: 1px solid var(--line); }
+    th { color: var(--muted); font-weight: 500; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    tbody tr.row-lensml { background: var(--accent-soft); }
+    tbody tr.row-lensml td:first-child { color: var(--accent); font-weight: 600; }
+    .check { color: #34d399; }
+    .dash { color: #525252; }
+    footer {
+      margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--line);
+      color: var(--muted); font-size: 0.8rem;
+    }
+    .cta {
+      display: inline-block; padding: 0.7rem 1.2rem; margin-top: 0.5rem; margin-right: 0.5rem;
+      background: var(--accent); color: #001b1f; border-radius: 6px;
+      font-weight: 600; font-size: 0.9rem; border: 1px solid var(--accent);
+    }
+    .cta:hover { border-bottom-color: transparent; opacity: 0.9; }
+    .cta-ghost {
+      background: transparent; color: var(--fg); border-color: var(--line);
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <span class="pill">solo · 30-day build · pre-release alpha</span>
+    <h1>lensml<span class="dot">.</span></h1>
+    <p class="lede">An AI agent that supervises your PyTorch training runs. Detects bugs, proposes libcst-level patches, resumes from checkpoint.</p>
+
+    <p>
+      <a class="cta" href="https://github.com/rupeshbharambe24/lensml">View on GitHub</a>
+      <a class="cta cta-ghost" href="https://github.com/rupeshbharambe24/lensml/blob/main/lensml-implementation-sequence.md">Build log</a>
+    </p>
+
+    <h2>30-second install</h2>
+    <pre><code>pip install lensml
+lensml dashboard &amp;        # localhost:8000
+# in your training script:
+import lensml
+lensml.watch(model, optimizer)</code></pre>
+
+    <h2>What you get</h2>
+    <div class="feature-grid">
+      <div class="feature">
+        <h3>Live telemetry</h3>
+        <p>Forward hooks + optimizer.step interception stream loss, grad-L2, activation stats to a local dashboard with &lt;2% overhead.</p>
+      </div>
+      <div class="feature">
+        <h3>8 detectors</h3>
+        <p>Stream consumers fire on exploding gradients, dead ReLUs, lr too high, missing normalize, model.eval() not called, bad init, vanishing grad, dataloader bottlenecks.</p>
+      </div>
+      <div class="feature">
+        <h3>libcst patches</h3>
+        <p>The agent proposes a unified diff. You press <code>y</code>. lensml commits the patch to a session branch, checkpoints state, restarts your script.</p>
+      </div>
+      <div class="feature">
+        <h3>Three integrations</h3>
+        <p>Raw PyTorch, PyTorch Lightning callbacks, HuggingFace Trainer callbacks. One <code>lensml.watch(...)</code> per loop.</p>
+      </div>
+      <div class="feature">
+        <h3>Free LLM routing</h3>
+        <p>LiteLLM fallback chain across Groq / Cerebras / Gemini / OpenRouter / Mistral. Plus a Plan-C local privacy-mode toggle.</p>
+      </div>
+      <div class="feature">
+        <h3>Reproducible bench</h3>
+        <p><code>lensml-bench</code>: 8 deterministic fixtures, subprocess grader, JSON cache, side-by-side LLM-only baseline arm.</p>
+      </div>
+    </div>
+
+    <h2>How it compares</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Tool</th>
+          <th>Detect</th>
+          <th>Diagnose</th>
+          <th>Patch source</th>
+          <th>Resume</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>W&amp;B / MLflow</td><td>passive metrics</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+        <tr><td>TrainCheck (OSDI '25)</td><td><span class="check">yes</span></td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+        <tr><td>AutoTrainer (ICSE '21)</td><td><span class="check">yes</span></td><td>rule-based</td><td>in-memory only (Keras)</td><td class="dash">—</td></tr>
+        <tr><td>Cursor / Aider</td><td class="dash">—</td><td class="dash">—</td><td><span class="check">yes</span> (offline)</td><td class="dash">—</td></tr>
+        <tr class="row-lensml">
+          <td>lensml</td>
+          <td><span class="check">yes</span></td>
+          <td><span class="check">LLM agent</span></td>
+          <td><span class="check">yes (libcst)</span></td>
+          <td><span class="check">yes</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Cost</h2>
+    <p><strong>$0.</strong> Every provider used (Groq, Cerebras, Gemini, OpenRouter, Mistral) is on its free tier. The 30-day build, including baselines, ran on $0.</p>
+
+    <footer>
+      <p>
+        Built solo by
+        <a href="https://github.com/rupeshbharambe24">@rupeshbharambe24</a>
+        for the FAR AWAY hackathon. Apache-2.0 core; future enterprise
+        features under <code>/ee/</code> with a separate license.
+        <a href="https://github.com/rupeshbharambe24/lensml/blob/main/LICENSE">License</a>.
+      </p>
+    </footer>
+  </main>
+</body>
+</html>
