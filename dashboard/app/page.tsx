@@ -1,23 +1,91 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AgentReasoning } from "@/components/AgentReasoning";
+import { CommandPalette, type PaletteAction } from "@/components/CommandPalette";
 import { DiffPreview } from "@/components/DiffPreview";
+import { KeyboardHelp } from "@/components/KeyboardHelp";
 import { LiveMetrics } from "@/components/LiveMetrics";
 import { StatusPill } from "@/components/StatusPill";
+import { useLang } from "@/lib/i18n";
 import { LENSML_API_URL, useSSE } from "@/lib/useSSE";
 
 const DEFAULT_RUN_ID = "demo-run";
 
 export default function HomePage() {
-  // For step 1.5 the run id is hardcoded; the URL bar / API will drive it
-  // in step 2.x once /api/runs returns active runs.
   const [runId] = useState(DEFAULT_RUN_ID);
-  // Absolute URL bypasses the Next.js dev proxy (which buffers SSE).
-  // FastAPI is configured with CORS for localhost:3000.
   const sseUrl = `${LENSML_API_URL}/api/runs/${runId}/metrics`;
   const { events, status } = useSSE(sseUrl);
+  const { lang, toggle } = useLang();
+
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+
+  // Most-recent step (any kind of metric event with `step`).
+  const latestStep = useMemo(() => {
+    for (let i = events.length - 1; i >= 0; i--) {
+      const s = events[i].step;
+      if (typeof s === "number") return s;
+    }
+    return undefined;
+  }, [events]);
+
+  // Global keyboard shortcuts: ⌘K / Ctrl+K opens palette, ? opens help,
+  // g toggles language, Esc closes overlays.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isTyping =
+        !!target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable);
+
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+        return;
+      }
+      if (isTyping) return;
+      if (e.key === "?") {
+        e.preventDefault();
+        setHelpOpen(true);
+        return;
+      }
+      if (e.key === "Escape") {
+        setPaletteOpen(false);
+        setHelpOpen(false);
+        return;
+      }
+      if (e.key === "g") {
+        toggle();
+        return;
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [toggle]);
+
+  const handlePalette = useCallback(
+    (a: PaletteAction) => {
+      switch (a) {
+        case "toggle-lang":
+          toggle();
+          break;
+        case "show-help":
+          setHelpOpen(true);
+          break;
+        case "reload":
+          if (typeof window !== "undefined") window.location.reload();
+          break;
+        case "close":
+          setPaletteOpen(false);
+          break;
+      }
+    },
+    [toggle],
+  );
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
@@ -27,7 +95,30 @@ export default function HomePage() {
           <span className="text-neutral-700">▸</span>
           <span className="text-neutral-300">{runId}</span>
         </div>
-        <StatusPill status={status} />
+        <div className="flex items-center gap-3">
+          <button
+            onClick={toggle}
+            title="Toggle language (g)"
+            className="rounded border border-neutral-800 bg-neutral-900 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-200"
+          >
+            {lang.toUpperCase()}
+          </button>
+          <button
+            onClick={() => setPaletteOpen(true)}
+            title="Command palette (⌘K)"
+            className="rounded border border-neutral-800 bg-neutral-900 px-2 py-1 font-mono text-[10px] text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-200"
+          >
+            ⌘K
+          </button>
+          <button
+            onClick={() => setHelpOpen(true)}
+            title="Keyboard shortcuts (?)"
+            className="rounded border border-neutral-800 bg-neutral-900 px-2 py-1 font-mono text-[10px] text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-200"
+          >
+            ?
+          </button>
+          <StatusPill status={status} step={latestStep} />
+        </div>
       </header>
 
       <div className="grid h-[calc(100vh-57px)] grid-cols-1 gap-4 p-4 md:grid-cols-2">
@@ -37,6 +128,13 @@ export default function HomePage() {
           <DiffPreview runId={runId} events={events} />
         </div>
       </div>
+
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        onAction={handlePalette}
+      />
+      <KeyboardHelp open={helpOpen} onClose={() => setHelpOpen(false)} />
     </main>
   );
 }

@@ -1,13 +1,15 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
+import { useLang } from "@/lib/i18n";
 import type { LensmlEvent } from "@/lib/useSSE";
 
 /**
- * Right-top pane: detector anomalies + (eventually) agent reasoning trace.
+ * Right-top pane: detector anomalies + agent reasoning trace.
  *
- * Step 1.7: shows anomaly events as they arrive from the broker. The full
- * agent reasoning view (tool-call cards, hypothesis stream, confidence
- * pill) lands in step 2.3 once the LLM agent loop is implemented.
+ * Step 3.5 polish: pop-in animation when a new anomaly arrives, i18n
+ * (EN/JA), severity-colored badge.
  */
 
 type AnomalyEvent = LensmlEvent & {
@@ -32,15 +34,34 @@ function severityClass(s: string | undefined): string {
   return SEVERITY_COLORS[s ?? "warning"] ?? SEVERITY_COLORS.warning;
 }
 
+function anomalyKey(a: AnomalyEvent): string {
+  return `${a.detector ?? "?"}|${a.signal ?? "?"}|${a.step ?? -1}|${a.ts ?? 0}`;
+}
+
 export function AgentReasoning({ events }: { events: LensmlEvent[] }) {
+  const { t } = useLang();
   const anomalies = events.filter(isAnomaly);
   const latest = anomalies[anomalies.length - 1];
+
+  // Track the latest key so we can play a pop-in animation each time
+  // a new anomaly arrives without re-animating on every parent re-render.
+  const [latestKey, setLatestKey] = useState<string | null>(null);
+  const [pop, setPop] = useState(false);
+  useEffect(() => {
+    if (!latest) return;
+    const k = anomalyKey(latest);
+    if (k === latestKey) return;
+    setLatestKey(k);
+    setPop(true);
+    const tid = setTimeout(() => setPop(false), 600);
+    return () => clearTimeout(tid);
+  }, [latest, latestKey]);
 
   return (
     <div className="flex h-full flex-col rounded-lg border border-neutral-800 bg-neutral-900/50 p-4">
       <div className="flex items-center justify-between">
         <h2 className="font-mono text-xs uppercase tracking-wider text-neutral-400">
-          Agent reasoning
+          {t.agentReasoning}
         </h2>
         {latest ? (
           <span
@@ -59,7 +80,7 @@ export function AgentReasoning({ events }: { events: LensmlEvent[] }) {
 
       <div className="mt-3 flex-1 overflow-y-auto text-sm">
         {!latest && <Empty />}
-        {latest && <LatestAnomaly anomaly={latest} />}
+        {latest && <LatestAnomaly anomaly={latest} pop={pop} />}
         {anomalies.length > 1 && <PastAnomalies anomalies={anomalies.slice(0, -1)} />}
       </div>
     </div>
@@ -67,23 +88,31 @@ export function AgentReasoning({ events }: { events: LensmlEvent[] }) {
 }
 
 function Empty() {
+  const { t } = useLang();
   return (
     <div className="text-neutral-500">
       <p className="font-mono">
-        <span className="text-neutral-600">◯</span> No anomaly detected yet.
+        <span className="text-neutral-600">◯</span> {t.noAnomaly}
       </p>
       <p className="mt-2 text-xs leading-relaxed text-neutral-600">
-        The agent will appear here when telemetry crosses a detector threshold.
-        Hypothesis, tool calls, and confidence stream live.
+        {t.noAnomalyDetail}
       </p>
     </div>
   );
 }
 
-function LatestAnomaly({ anomaly }: { anomaly: AnomalyEvent }) {
+function LatestAnomaly({
+  anomaly,
+  pop,
+}: {
+  anomaly: AnomalyEvent;
+  pop: boolean;
+}) {
   const { detector, signal, step, evidence, severity } = anomaly;
   return (
-    <div className={`rounded-md border p-3 ${severityClass(severity)}`}>
+    <div
+      className={`rounded-md border p-3 transition-all duration-300 ${severityClass(severity)} ${pop ? "lensml-popin" : ""}`}
+    >
       <div className="flex items-baseline justify-between font-mono text-xs">
         <span className="font-semibold">⚠ {detector ?? "anomaly"}</span>
         <span className="opacity-70">step {step ?? "—"}</span>
@@ -108,10 +137,11 @@ function LatestAnomaly({ anomaly }: { anomaly: AnomalyEvent }) {
 }
 
 function PastAnomalies({ anomalies }: { anomalies: AnomalyEvent[] }) {
+  const { t } = useLang();
   return (
     <div className="mt-4">
       <div className="font-mono text-[10px] uppercase tracking-wider text-neutral-500">
-        Earlier ({anomalies.length})
+        {t.earlier} ({anomalies.length})
       </div>
       <ul className="mt-2 space-y-1 font-mono text-[11px] text-neutral-500">
         {anomalies

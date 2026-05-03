@@ -8,19 +8,26 @@ import type { LensmlEvent } from "@/lib/useSSE";
 const CHART_HEIGHT = 220;
 const FALLBACK_WIDTH = 600;
 
+type Marker = { step: number; severity: string; detector?: string };
+
+const SEVERITY_STROKE: Record<string, string> = {
+  critical: "rgba(244, 63, 94, 0.65)", // rose-500
+  warning: "rgba(251, 191, 36, 0.55)", // amber-400
+  info: "rgba(56, 189, 248, 0.55)", // sky-400
+};
+
 /**
- * uPlot loss-vs-step chart. Receives the rolling event buffer from useSSE
- * and re-renders on update.
+ * uPlot loss-vs-step chart with vertical intervention markers (plan §3.5).
  *
- * Layout-stability concerns:
- *   - At mount, the flex/grid parent may not yet have a non-zero
- *     clientWidth — uPlot would then render an invisible 0-pixel canvas.
- *     We use a ResizeObserver to defer initialization until the container
- *     reports a real width, and to track size changes after that.
+ * Markers are drawn from every anomaly event in the buffer — one
+ * dashed vertical line per anomaly, color-coded by severity. They sit
+ * on top of the loss curve so the user can correlate "what happened
+ * here?" at a glance.
  */
 export function LossChart({ events }: { events: LensmlEvent[] }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const plotRef = useRef<uPlot | null>(null);
+  const markersRef = useRef<Marker[]>([]);
   const [ready, setReady] = useState(false);
 
   // Lifecycle: observe container size, init chart once non-zero width
@@ -28,6 +35,28 @@ export function LossChart({ events }: { events: LensmlEvent[] }) {
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
+
+    const drawMarkers = (u: uPlot) => {
+      const markers = markersRef.current;
+      if (markers.length === 0) return;
+      const ctx = u.ctx;
+      ctx.save();
+      ctx.setLineDash([4, 4]);
+      ctx.lineWidth = 1;
+      const top = u.bbox.top;
+      const bottom = u.bbox.top + u.bbox.height;
+      for (const mk of markers) {
+        const x = u.valToPos(mk.step, "x", true);
+        if (x < u.bbox.left || x > u.bbox.left + u.bbox.width) continue;
+        ctx.strokeStyle =
+          SEVERITY_STROKE[mk.severity] ?? SEVERITY_STROKE.warning;
+        ctx.beginPath();
+        ctx.moveTo(x, top);
+        ctx.lineTo(x, bottom);
+        ctx.stroke();
+      }
+      ctx.restore();
+    };
 
     const opts: uPlot.Options = {
       width: FALLBACK_WIDTH,
@@ -55,6 +84,9 @@ export function LossChart({ events }: { events: LensmlEvent[] }) {
         },
       ],
       scales: { x: { time: false } },
+      hooks: {
+        draw: [drawMarkers],
+      },
     };
 
     const init = (width: number) => {
@@ -75,7 +107,6 @@ export function LossChart({ events }: { events: LensmlEvent[] }) {
     });
     ro.observe(el);
 
-    // Try once immediately in case the layout is already settled.
     if (el.clientWidth > 0) {
       init(el.clientWidth);
     }
@@ -93,14 +124,28 @@ export function LossChart({ events }: { events: LensmlEvent[] }) {
     if (!u) return;
     const xs: number[] = [];
     const ys: number[] = [];
+    const markers: Marker[] = [];
     for (const e of events) {
       if (typeof e.step === "number" && typeof e.loss === "number") {
         xs.push(e.step);
         ys.push(e.loss);
       }
+      if (
+        e.kind === "anomaly" &&
+        typeof e.step === "number"
+      ) {
+        markers.push({
+          step: e.step,
+          severity: typeof e.severity === "string" ? e.severity : "warning",
+          detector: typeof e.detector === "string" ? e.detector : undefined,
+        });
+      }
     }
+    markersRef.current = markers;
     if (xs.length > 0) {
       u.setData([xs, ys]);
+    } else {
+      u.redraw();
     }
   }, [events, ready]);
 
