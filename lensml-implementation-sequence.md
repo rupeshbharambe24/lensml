@@ -117,10 +117,10 @@ End-of-week gate: 48 fixtures benched, report generated, 90-second video uploade
 
 | #   | Day                | Task | Exit criterion |
 | --- | ------------------ | ---- | -------------- |
-| 5.1 | Jun 5 (Fri)        | Fill Unstop submission form. Attach video, README link (still private), benchmark report. Test install on a fresh VM/container. | Submission form draft saved |
-| 5.2 | Jun 6 (Sat)        | Last-pass bug fixes. Verify all install paths work. Draft launch tweet thread + HN Show post (do not post). | Everything queued |
-| 5.3 | Jun 7 (Sun) **AM** | **Submit on Unstop before 12:00 IST.** | Submission confirmation email |
-| 5.4 | Jun 7 **PM**       | Toggle GitHub repo public. Push final commit. First tweet thread (09:00 IST). LinkedIn post. **Hold HN/Reddit until after R2 results.** | **DONE** |
+| 5.1 | May 02 ✅ (build infra) → Jun 5 (manual fill) | Submission infrastructure shipped. Form fill itself is manual. | New `Dockerfile` + `.dockerignore` (fresh-environment install image: `docker build -t lensml-smoke . && docker run --rm lensml-smoke`). New `scripts/smoke_install.sh` validates every public submodule imports, all 8 fix templates registered, all 8 packaged tiny fixtures load, all 3 replay scenarios generate. New CI job `smoke` runs it on every push. New `submission/`: `pitch.md` (one-liner / 280-char / 600-word paste-ready), `links.md` (single source of truth for URLs), `qa.md` (pre-baked answers to the W&B / fix-correctness / distributed / privacy / cost / "what doesn't work yet" / "why not Cursor" questions), `submission_checklist.md` (Sunday-morning T-5h timeline), `launch.md` (tweet thread + LinkedIn + Show HN drafts — do NOT post until cleared). 563/563 tests still pass; smoke verified locally. |
+| 5.2 | May 02 ✅ (drafts ready) → Jun 6 (manual review) | Drafts queued; bug-fix pass is manual on the day. | `submission/launch.md` holds the 8-tweet thread, LinkedIn post, and Show HN draft (latter held until after R2). `submission/qa.md` is the on-call answer crib. |
+| 5.3 | Jun 7 (Sun) **AM** | **Submit on Unstop before 12:00 IST.** Manual. | Per `submission/submission_checklist.md` T-5h flow. |
+| 5.4 | Jun 7 **PM**       | Toggle GitHub public + push final + post tweet thread + LinkedIn. **Hold HN/Reddit until after R2.** Manual. | **DONE** |
 
 ---
 

@@ -1,0 +1,29 @@
+# Don't ship dev cruft into the install-smoke image.
+.git
+.github
+.venv
+.pytest_cache
+.mypy_cache
+.ruff_cache
+__pycache__
+*.pyc
+htmlcov
+.coverage*
+
+# Heavy / generated artifacts that aren't part of `pip install`.
+dashboard/node_modules
+dashboard/.next
+landing
+docs
+site
+demo/out
+bench/results
+*.sqlite
+lensml.sqlite
+
+# Editor / OS noise.
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+bash.exe.stackdump

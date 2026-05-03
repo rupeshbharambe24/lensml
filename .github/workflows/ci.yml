@@ -46,6 +46,22 @@ jobs:
       - name: Run tests
         run: uv run pytest -v --cov=lensml --cov-report=term-missing
 
+  smoke:
+    # Step 5.1: catch a fresh-environment install regression — the Unstop
+    # reviewer's first move is `pip install` on a clean machine.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install lensml from source
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      - name: Run smoke
+        run: bash scripts/smoke_install.sh
+
   dashboard:
     # Catches Next.js / TypeScript / lint regressions in the dashboard.
     # Step 1.5 shipped with an empty next.config.ts (rewrites lost to
