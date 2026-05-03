@@ -12,6 +12,7 @@ const SHORTCUTS: { keys: string[]; description: string }[] = [
   { keys: ["n"], description: "Reject the proposed fix" },
   { keys: ["u"], description: "Undo the last applied fix" },
   { keys: ["g"], description: "Toggle language (EN ↔ JA)" },
+  { keys: ["p"], description: "Toggle privacy mode (local LLM)" },
 ];
 
 export function KeyboardHelp({

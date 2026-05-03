@@ -37,7 +37,11 @@ type Strings = {
   paletteCmdToggleLang: string;
   paletteCmdShowHelp: string;
   paletteCmdReload: string;
+  paletteCmdTogglePrivacy: string;
   paletteEmpty: string;
+  privacyOn: string;
+  privacyOff: string;
+  privacyRunCanned: string;
 };
 
 const EN: Strings = {
@@ -63,7 +67,11 @@ const EN: Strings = {
   paletteCmdToggleLang: "Toggle language (EN ↔ JA)",
   paletteCmdShowHelp: "Show keyboard shortcuts",
   paletteCmdReload: "Reload dashboard",
+  paletteCmdTogglePrivacy: "Toggle privacy mode (local LLM)",
   paletteEmpty: "No commands match",
+  privacyOn: "Privacy: ON",
+  privacyOff: "Privacy: OFF",
+  privacyRunCanned: "Run local diagnosis",
 };
 
 const JA: Strings = {
@@ -89,7 +97,11 @@ const JA: Strings = {
   paletteCmdToggleLang: "言語を切り替え (EN ↔ JA)",
   paletteCmdShowHelp: "ショートカットを表示",
   paletteCmdReload: "ダッシュボードを再読み込み",
+  paletteCmdTogglePrivacy: "プライバシーモードを切り替え (ローカルLLM)",
   paletteEmpty: "一致するコマンドはありません",
+  privacyOn: "プライバシー: 有効",
+  privacyOff: "プライバシー: 無効",
+  privacyRunCanned: "ローカル診断を実行",
 };
 
 const TABLE: Record<Lang, Strings> = { en: EN, ja: JA };

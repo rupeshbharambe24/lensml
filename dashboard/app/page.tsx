@@ -7,6 +7,7 @@ import { CommandPalette, type PaletteAction } from "@/components/CommandPalette"
 import { DiffPreview } from "@/components/DiffPreview";
 import { KeyboardHelp } from "@/components/KeyboardHelp";
 import { LiveMetrics } from "@/components/LiveMetrics";
+import { PrivacyToggle, dispatchPrivacyToggle } from "@/components/PrivacyToggle";
 import { StatusPill } from "@/components/StatusPill";
 import { useLang } from "@/lib/i18n";
 import { LENSML_API_URL, useSSE } from "@/lib/useSSE";
@@ -62,6 +63,10 @@ export default function HomePage() {
         toggle();
         return;
       }
+      if (e.key === "p") {
+        dispatchPrivacyToggle();
+        return;
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -78,6 +83,9 @@ export default function HomePage() {
           break;
         case "reload":
           if (typeof window !== "undefined") window.location.reload();
+          break;
+        case "toggle-privacy":
+          dispatchPrivacyToggle();
           break;
         case "close":
           setPaletteOpen(false);
@@ -117,6 +125,7 @@ export default function HomePage() {
           >
             ?
           </button>
+          <PrivacyToggle />
           <StatusPill status={status} step={latestStep} />
         </div>
       </header>

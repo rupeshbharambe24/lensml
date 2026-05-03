@@ -28,6 +28,7 @@ from lensml.detectors.exploding_grad import ExplodingGradDetector
 from lensml.detectors.runner import DetectorRunner
 from lensml.server.decisions import apply_decision, compute_diff_preview
 from lensml.server.git import GitError, GitRepo
+from lensml.server.privacy import PrivacyConfig, canned_diagnosis
 from lensml.server.sse import EventBroker
 from lensml.server.store import EventStore
 
@@ -129,6 +130,7 @@ def create_app(
         app.state.detector_runner = runner
         app.state.script_path = script_path
         app.state.repo_path = repo_path
+        app.state.privacy = PrivacyConfig()
         try:
             yield
         finally:
@@ -152,6 +154,48 @@ def create_app(
     @app.get("/healthz")
     async def healthz() -> dict[str, bool]:
         return {"ok": True}
+
+    @app.get("/api/privacy")
+    async def get_privacy(request: Request) -> dict[str, Any]:
+        """Read the current privacy-mode config (plan §3.7)."""
+        cfg: PrivacyConfig = request.app.state.privacy
+        return cfg.to_dict()
+
+    @app.post("/api/privacy")
+    async def set_privacy(request: Request) -> dict[str, Any]:
+        """Toggle privacy mode (plan §3.7).
+
+        Body: ``{"enabled": bool}``. The toggle is informational for v1
+        — see ``lensml/server/privacy.py`` and plan §5.6 for the full
+        Plan A/B/C tradeoff.
+        """
+        cfg: PrivacyConfig = request.app.state.privacy
+        body = await request.json()
+        if not isinstance(body, dict) or "enabled" not in body:
+            raise HTTPException(status_code=400, detail="body must be {'enabled': bool}")
+        enabled = body["enabled"]
+        if not isinstance(enabled, bool):
+            raise HTTPException(status_code=400, detail="'enabled' must be a boolean")
+        cfg.set_enabled(enabled)
+        return cfg.to_dict()
+
+    @app.post("/api/privacy/canned")
+    async def privacy_canned(request: Request) -> dict[str, Any]:
+        """Return a canned local-mode diagnosis for a given anomaly
+        (plan §3.7 — Plan C: one canned interaction works).
+
+        Body: ``{"anomaly": {...}}`` — the same shape as a detector's
+        ``Anomaly.to_event()`` output. No network call is made; the
+        response is computed from a static mapping in
+        ``lensml.server.privacy``. This is the privacy-mode guarantee.
+        """
+        body = await request.json()
+        if not isinstance(body, dict):
+            raise HTTPException(status_code=400, detail="body must be JSON object")
+        anomaly = body.get("anomaly")
+        if not isinstance(anomaly, dict):
+            raise HTTPException(status_code=400, detail="body must contain {'anomaly': {...}}")
+        return canned_diagnosis(anomaly)
 
     @app.get("/api/runs")
     async def list_runs(request: Request) -> list[dict[str, Any]]:

@@ -18,6 +18,7 @@ export type PaletteAction =
   | "toggle-lang"
   | "show-help"
   | "reload"
+  | "toggle-privacy"
   | "close";
 
 export function CommandPalette({
@@ -74,6 +75,14 @@ export function CommandPalette({
               label={t.paletteCmdToggleLang}
               onSelect={() => {
                 onAction("toggle-lang");
+                onClose();
+              }}
+            />
+            <PaletteItem
+              hint="p"
+              label={t.paletteCmdTogglePrivacy}
+              onSelect={() => {
+                onAction("toggle-privacy");
                 onClose();
               }}
             />

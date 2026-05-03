@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { useLang } from "@/lib/i18n";
-import type { LensmlEvent } from "@/lib/useSSE";
+import { LENSML_API_URL, type LensmlEvent } from "@/lib/useSSE";
 
 /**
  * Right-top pane: detector anomalies + agent reasoning trace.
@@ -101,6 +101,14 @@ function Empty() {
   );
 }
 
+type CannedDiagnosis = {
+  hypothesis?: string;
+  fix_template?: string | null;
+  rationale?: string;
+  confidence?: string;
+  model?: string;
+};
+
 function LatestAnomaly({
   anomaly,
   pop,
@@ -108,7 +116,27 @@ function LatestAnomaly({
   anomaly: AnomalyEvent;
   pop: boolean;
 }) {
+  const { t } = useLang();
   const { detector, signal, step, evidence, severity } = anomaly;
+  const [canned, setCanned] = useState<CannedDiagnosis | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const runCanned = async () => {
+    setLoading(true);
+    try {
+      const r = await fetch(`${LENSML_API_URL}/api/privacy/canned`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ anomaly }),
+      });
+      if (r.ok) setCanned(await r.json());
+    } catch {
+      // best-effort — leave canned null on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div
       className={`rounded-md border p-3 transition-all duration-300 ${severityClass(severity)} ${pop ? "lensml-popin" : ""}`}
@@ -131,6 +159,33 @@ function LatestAnomaly({
             </div>
           ))}
         </dl>
+      )}
+      <div className="mt-3 flex justify-end">
+        <button
+          type="button"
+          onClick={() => void runCanned()}
+          disabled={loading}
+          className="rounded border border-neutral-700 bg-neutral-900/60 px-2 py-1 font-mono text-[10px] text-neutral-300 transition-colors hover:bg-neutral-800 disabled:opacity-50"
+        >
+          {loading ? "…" : t.privacyRunCanned}
+        </button>
+      </div>
+      {canned && (
+        <div className="mt-3 rounded border border-neutral-700 bg-neutral-950/60 p-2 font-mono text-[11px] text-neutral-300">
+          <div className="flex justify-between text-[10px] uppercase tracking-wider text-neutral-500">
+            <span>local · {canned.model ?? "—"}</span>
+            <span>conf: {canned.confidence ?? "—"}</span>
+          </div>
+          {canned.hypothesis && (
+            <p className="mt-1 leading-snug">{canned.hypothesis}</p>
+          )}
+          {canned.fix_template && (
+            <p className="mt-1 text-emerald-300">→ {canned.fix_template}</p>
+          )}
+          {canned.rationale && (
+            <p className="mt-1 leading-snug text-neutral-400">{canned.rationale}</p>
+          )}
+        </div>
       )}
     </div>
   );
