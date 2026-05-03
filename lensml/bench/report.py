@@ -1,19 +1,17 @@
 """Benchmark report generator (plan §6.5, §8 D26).
 
-Produces ``report.md`` + ``report.json`` from a ``BenchSummary``.
+Produces ``report.md`` + ``report.json`` from a ``BenchSummary`` and
+optional baseline arms.
 
-The full plan-spec report (per-class confusion matrix, latency
-histogram, $0 cost slide, "what doesn't work yet") needs the LLM-only
-baseline data which lands in step 4.4. v1 here ships:
-
-    - markdown summary header (totals, pass rates, elapsed)
-    - per-fixture pass/fail table
-    - per-pathology aggregate
-    - "what doesn't work yet" section enumerating fixtures whose
-      ``patched`` variant didn't pass
-
-…which is enough for the bench infrastructure tests (step 4.3 exit
-criterion) and gets fleshed out further in step 4.5.
+Sections rendered:
+    - Headline (overall pass, fix-pass, bug-fails counts)
+    - lensml-full vs LLM-only baselines (when baselines present)
+    - Confusion matrix per baseline (predicted × actual pathology class)
+    - Latency histogram (ASCII bars, lensml + each baseline arm)
+    - Cost breakdown ($0 — the killer slide)
+    - Per-pathology aggregate
+    - Per-fixture pass/fail table
+    - What doesn't work yet (fixture-by-fixture failure reasons)
 """
 
 from __future__ import annotations
@@ -101,6 +99,96 @@ def _render_failures(runs: list[FixtureRun]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _confusion_matrix(baseline: BaselineSummary) -> dict[str, dict[str, int]]:
+    """Build a {actual: {predicted: count}} confusion matrix from a
+    baseline summary. ``predicted=None`` is bucketed under ``"(unparsed)"``."""
+    matrix: dict[str, dict[str, int]] = {}
+    for r in baseline.results:
+        actual = r.pathology_class
+        predicted = r.diagnosed_class or "(unparsed)"
+        matrix.setdefault(actual, {})
+        matrix[actual][predicted] = matrix[actual].get(predicted, 0) + 1
+    return matrix
+
+
+def _render_confusion_matrix(baseline: BaselineSummary) -> str:
+    """Confusion matrix table per plan §6.5."""
+    if not baseline.results:
+        return "_(no baseline runs)_\n"
+    matrix = _confusion_matrix(baseline)
+    actuals = sorted(matrix.keys())
+    predicted_set: set[str] = set()
+    for row in matrix.values():
+        predicted_set.update(row.keys())
+    predicted = sorted(predicted_set)
+
+    header = "| actual ↓ / predicted → | " + " | ".join(predicted) + " | total |"
+    sep = "| --- |" + " --- |" * (len(predicted) + 1)
+    lines = [header, sep]
+    for actual in actuals:
+        row = matrix[actual]
+        cells = [str(row.get(p, 0)) for p in predicted]
+        total = sum(row.values())
+        # Highlight the diagonal cell (correct diagnosis count) when present.
+        if actual in predicted:
+            idx = predicted.index(actual)
+            cells[idx] = f"**{cells[idx]}**" if cells[idx] != "0" else cells[idx]
+        lines.append(f"| {actual} | " + " | ".join(cells) + f" | {total} |")
+    return "\n".join(lines) + "\n"
+
+
+def _render_latency_histogram(bench: BenchSummary, baselines: list[BaselineSummary]) -> str:
+    """ASCII histogram of per-fixture elapsed times."""
+    series: list[tuple[str, list[float]]] = []
+    if bench.runs:
+        series.append(("lensml-full", [r.elapsed for r in bench.runs]))
+    for b in baselines:
+        if b.results:
+            series.append((f"baseline·{b.provider}", [r.elapsed for r in b.results]))
+    if not series:
+        return "_(no runs)_\n"
+
+    # Define shared bucket edges across all series so bars are comparable.
+    all_values = [v for _, vals in series for v in vals]
+    if not all_values:
+        return "_(no timing data)_\n"
+    max_v = max(all_values)
+    if max_v <= 0:
+        return "_(all runs reported zero elapsed)_\n"
+    n_buckets = 6
+    width = max_v / n_buckets
+    edges = [width * i for i in range(n_buckets + 1)]
+
+    lines = ["```"]
+    for name, vals in series:
+        lines.append(f"{name}:")
+        for i in range(n_buckets):
+            lo, hi = edges[i], edges[i + 1]
+            count = sum(1 for v in vals if lo <= v < hi or (i == n_buckets - 1 and v == hi))
+            bar = "#" * count
+            lines.append(f"  [{lo:5.1f}–{hi:5.1f}s] {bar} ({count})")
+    lines.append("```")
+    return "\n".join(lines) + "\n"
+
+
+def _render_cost_breakdown(baselines: list[BaselineSummary]) -> str:
+    """Plan §6.5 — the $0 cost slide is the killer line."""
+    arms = ["lensml-full"] + [f"baseline · {b.provider}" for b in baselines]
+    lines = [
+        "| arm | tier | cost |",
+        "| --- | --- | --- |",
+    ]
+    for a in arms:
+        lines.append(f"| {a} | free | **$0.00** |")
+    lines.append("")
+    lines.append(
+        "_Every provider used (Groq, Cerebras, Gemini, OpenRouter, Mistral) "
+        "is on its free tier. The whole 30-day build, including baselines, "
+        "ran on $0._"
+    )
+    return "\n".join(lines) + "\n"
+
+
 def _render_baseline_comparison(bench: BenchSummary, baselines: list[BaselineSummary]) -> str:
     pct = lambda x: f"{x * 100:.1f}%"  # noqa: E731
     lines = [
@@ -151,6 +239,25 @@ def render_markdown(
         )
         out.append(_render_baseline_comparison(summary, baselines))
         out.append("")
+
+        out.append("## Confusion matrix (LLM-only baseline diagnoses)\n")
+        out.append(
+            "Each row is a fixture's *actual* pathology; each column is the "
+            "single-shot LLM diagnosis. Diagonal cells (correct) are bolded.\n"
+        )
+        for b in baselines:
+            out.append(f"### baseline · {b.provider}\n")
+            out.append(_render_confusion_matrix(b))
+            out.append("")
+
+    out.append("## Latency histogram\n")
+    out.append(_render_latency_histogram(summary, baselines or []))
+    out.append("")
+
+    out.append("## Cost breakdown\n")
+    out.append(_render_cost_breakdown(baselines or []))
+    out.append("")
+
     out.append("## Per-pathology\n")
     out.append(_render_per_pathology(summary.runs))
     out.append("")

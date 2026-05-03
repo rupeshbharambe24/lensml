@@ -203,6 +203,90 @@ def bench_baseline(
         typer.echo(f"  → wrote {target}")
 
 
+@bench_app.command("report")
+def bench_report(
+    bench_json: str = typer.Option(
+        ..., "--bench", help="Path to a report.json from `lensml bench run --out`."
+    ),
+    baseline_json: list[str] = typer.Option(  # noqa: B008 — typer idiom
+        [],
+        "--baseline",
+        help="Path to a baseline-*.json from `lensml bench baseline --out`. May repeat.",
+    ),
+    out: str = typer.Option(..., "--out", help="Output dir for report.md/report.json."),
+    title: str = typer.Option("lensml-bench report", "--title"),
+) -> None:
+    """Stitch a full bench JSON + N baseline JSONs into a final report
+    (plan §6.5 — confusion matrix, latency histogram, $0 cost slide,
+    "what doesn't work yet"). Produced by `lensml bench run --out`
+    and `lensml bench baseline --out`."""
+    import json as _json
+
+    from lensml.bench.baseline import BaselineResult, BaselineSummary
+    from lensml.bench.grader import GradeChecks, GradeResult
+    from lensml.bench.report import build_report
+    from lensml.bench.runner import BenchSummary, _from_cached
+
+    bench_blob = _json.loads(Path(bench_json).read_text(encoding="utf-8"))
+    summary = BenchSummary(
+        total=bench_blob.get("total", 0),
+        fix_pass=bench_blob.get("fix_pass", 0),
+        bug_correctly_fails=bench_blob.get("bug_correctly_fails", 0),
+        overall_pass=bench_blob.get("overall_pass", 0),
+        elapsed=bench_blob.get("elapsed", 0.0),
+        runs=[_from_cached(r) for r in bench_blob.get("runs", [])],
+    )
+
+    baselines: list[BaselineSummary] = []
+    for path_str in baseline_json:
+        blob = _json.loads(Path(path_str).read_text(encoding="utf-8"))
+        results: list[BaselineResult] = []
+        for r in blob.get("results", []):
+            patched_blob = r.get("patched", {}) or {}
+            patched_checks = patched_blob.get("checks") or {}
+            results.append(
+                BaselineResult(
+                    fixture_slug=r.get("fixture_slug", ""),
+                    pathology_class=r.get("pathology_class", ""),
+                    host_env=r.get("host_env", ""),
+                    diagnosed_class=r.get("diagnosed_class"),
+                    diagnosis_correct=bool(r.get("diagnosis_correct", False)),
+                    proposed_diff="",
+                    diff_applied=bool(r.get("diff_applied", False)),
+                    patched=GradeResult(
+                        fixture_slug=r.get("fixture_slug", ""),
+                        variant="baseline",
+                        checks=GradeChecks(
+                            runs=bool(patched_checks.get("runs", False)),
+                            loss_converged=bool(patched_checks.get("loss_converged", False)),
+                            metric_passed=patched_checks.get("metric_passed"),
+                        ),
+                        final_loss=patched_blob.get("final_loss"),
+                        elapsed=float(patched_blob.get("elapsed", 0.0) or 0.0),
+                        reason=patched_blob.get("reason"),
+                    ),
+                    raw_response="",
+                    elapsed=float(r.get("elapsed", 0.0) or 0.0),
+                    error=r.get("error"),
+                )
+            )
+        baselines.append(
+            BaselineSummary(
+                provider=blob.get("provider", "unknown"),
+                total=blob.get("total", 0),
+                diagnosis_correct=blob.get("diagnosis_correct", 0),
+                fix_passes=blob.get("fix_passes", 0),
+                diff_applied=blob.get("diff_applied", 0),
+                elapsed=blob.get("elapsed", 0.0),
+                results=results,
+            )
+        )
+
+    report = build_report(summary, title=title, baselines=baselines)
+    md, js = report.write(Path(out))
+    typer.echo(f"wrote {md} and {js}")
+
+
 def _post_event(server: str, event: dict[str, Any]) -> None:
     """POST an event to the running dashboard server's `_test_publish`
     endpoint. Uses the stdlib so we don't add an httpx dep to the CLI
