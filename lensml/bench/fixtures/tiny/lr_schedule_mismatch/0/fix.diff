@@ -1,14 +1,14 @@
 --- a/bug.py
 +++ b/bug.py
-@@ -27,6 +27,7 @@
+@@ -28,6 +28,7 @@
  
  model = nn.Linear(DIM, N_CLASSES)
- optimizer = torch.optim.SGD(model.parameters(), lr=0.5)
+ optimizer = torch.optim.SGD(model.parameters(), lr=2.0)
 +scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=MAX_STEPS)
  criterion = nn.CrossEntropyLoss()
  
  last_loss = float("nan")
-@@ -40,6 +41,7 @@
+@@ -42,6 +43,7 @@
      optimizer.zero_grad(set_to_none=True)
      loss.backward()
      optimizer.step()

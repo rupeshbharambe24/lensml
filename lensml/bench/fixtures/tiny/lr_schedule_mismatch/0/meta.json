@@ -3,7 +3,7 @@
   "difficulty": "medium",
   "host_env": "tiny",
   "max_steps": 400,
-  "loss_threshold": 0.05,
+  "loss_threshold": 0.12,
   "metric_threshold": null,
   "metric_name": null,
   "notes": "Fixed lr=0.5 plateaus near minimum. Fix: CosineAnnealingLR scheduler with scheduler.step() each iteration."

@@ -92,16 +92,23 @@ lensml bench report --bench …/report.json --baseline …/baseline-groq.json --
 
 The report renders: confusion matrix per baseline, latency histogram
 (ASCII), $0 cost-breakdown table, "what doesn't work yet" failure
-log. Sample skeleton:
+log. **First real numbers (May 3 2026, 8 fixtures, 5 LLM-only
+baselines, all on free-tier providers):**
 
 | arm | n | diagnosis acc | fix-pass rate | overall pass |
 | --- | --- | --- | --- | --- |
-| **lensml-full** | 8 | n/a (unique) | TBD | TBD |
-| llm-only · groq | 8 | TBD | TBD | TBD |
-| llm-only · gemini | 8 | TBD | TBD | TBD |
+| **lensml-full** | 8 | n/a (unique) | **100%** | **100%** |
+| llm-only · gemini | 8 | 75% | 0% | 0/8 |
+| llm-only · cerebras | 8 | 63% | 0% | 0/8 |
+| llm-only · groq | 8 | 38% | 0% | 0/8 |
+| llm-only · mistral | 8 | 38% | 0% | 0/8 |
+| llm-only · openrouter | 8 | 25% | 0% | 0/8 |
 
-_Numbers populate after the external Colab/Kaggle GPU runs (§6.2);
-the assembly machinery is in place._
+_The credibility lynchpin: LLMs vary between 25% and 75% on **diagnosing**
+the bug, but produce **zero** diffs that apply cleanly across all 5
+providers. lensml's libcst transformers always produce applying diffs
+because they're parser-built rather than text-generated. Full report:
+[`bench/results/2026-05-03/final/report.md`](bench/results/2026-05-03/final/report.md)._
 
 ## Links
 

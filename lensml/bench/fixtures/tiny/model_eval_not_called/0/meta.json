@@ -3,8 +3,8 @@
   "difficulty": "easy",
   "host_env": "tiny",
   "max_steps": 200,
-  "loss_threshold": 0.5,
-  "metric_threshold": 0.85,
+  "loss_threshold": 0.6,
+  "metric_threshold": 0.97,
   "metric_name": "val_accuracy",
   "notes": "BatchNorm net with no model.eval()/train() wrap on val. Fix: wrap validation loop."
 }

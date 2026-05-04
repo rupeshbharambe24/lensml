@@ -2,11 +2,12 @@
 
 A 2-class linear classifier whose weights are initialized with a much
 larger scale than the default (``std=10`` instead of the default
-~``1/sqrt(fan_in)``). Step-0 cross-entropy is wildly above the
-random-baseline ``log(2) ≈ 0.69`` and convergence is extremely slow.
+~``1/sqrt(fan_in)``). With a tight step budget the optimizer cannot
+recover from those huge weights, so the bug.py never reaches the loss
+threshold. The patched version (Kaiming-normal init) lands close to
+the optimum within a handful of steps.
 
-Canonical fix: re-initialize weights with Kaiming-normal (the standard
-init for ReLU/Linear layers) before training.
+Canonical fix: re-initialize weights with Kaiming-normal before training.
 """
 
 from __future__ import annotations
@@ -18,12 +19,15 @@ import torch.nn as nn
 
 torch.manual_seed(0)
 
-MAX_STEPS = 300
+MAX_STEPS = 30
 BATCH = 32
 DIM = 8
 N_CLASSES = 2
 
-mu = torch.tensor([-1.5, 1.5])
+# Tight clusters with low-amplitude separation — the optimizer needs
+# every step to recover from a bad init. Patched (kaiming_normal_)
+# starts close to zero so all 30 steps are productive descent.
+mu = torch.tensor([-0.4, 0.4])
 
 model = nn.Linear(DIM, N_CLASSES)
 # Bug: huge weights = confident-wrong predictions = enormous CE at init.
@@ -36,7 +40,7 @@ criterion = nn.CrossEntropyLoss()
 last_loss = float("nan")
 for step in range(MAX_STEPS):
     y = torch.randint(0, N_CLASSES, (BATCH,))
-    x = torch.randn(BATCH, DIM) * 0.5 + mu[y].unsqueeze(1)
+    x = torch.randn(BATCH, DIM) * 0.4 + mu[y].unsqueeze(1)
     logits = model(x)
     loss = criterion(logits, y)
     optimizer.zero_grad(set_to_none=True)

@@ -3,10 +3,10 @@
   "total": 8,
   "diagnosis_correct": 6,
   "fix_passes": 0,
-  "diff_applied": 0,
+  "diff_applied": 1,
   "diagnosis_accuracy": 0.75,
   "fix_pass_rate": 0.0,
-  "elapsed": 129.41265225410461,
+  "elapsed": 247.66572213172913,
   "results": [
     {
       "fixture_slug": "tiny/bad_init/0",
@@ -31,11 +31,11 @@
         "exit_code": null,
         "stdout_tail": "",
         "stderr_tail": "",
-        "reason": "LLM did not return a diff block",
+        "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
         "extra": {},
         "passed": false
       },
-      "elapsed": 25.03707265853882,
+      "elapsed": 14.752700805664062,
       "error": null
     },
     {
@@ -44,28 +44,28 @@
       "host_env": "tiny",
       "diagnosed_class": "dead_relu",
       "diagnosis_correct": true,
-      "diff_applied": false,
+      "diff_applied": true,
       "fix_passes": false,
       "patched": {
         "fixture_slug": "tiny/dead_relu/0",
         "variant": "baseline",
         "checks": {
-          "runs": false,
+          "runs": true,
           "loss_converged": false,
           "metric_passed": null
         },
-        "final_loss": null,
+        "final_loss": 0.692750871181488,
         "final_metric": null,
-        "steps_used": null,
-        "elapsed": 0.0,
-        "exit_code": null,
-        "stdout_tail": "",
+        "steps_used": 300,
+        "elapsed": 7.913811683654785,
+        "exit_code": 0,
+        "stdout_tail": "{\"final_loss\": 0.692750871181488, \"steps_used\": 300}\n",
         "stderr_tail": "",
-        "reason": "baseline diff did not apply: hunk context mismatch at source line 13",
+        "reason": null,
         "extra": {},
         "passed": false
       },
-      "elapsed": 33.1901330947876,
+      "elapsed": 30.437003135681152,
       "error": null
     },
     {
@@ -95,7 +95,7 @@
         "extra": {},
         "passed": false
       },
-      "elapsed": 14.744914770126343,
+      "elapsed": 44.455265283584595,
       "error": null
     },
     {
@@ -121,11 +121,11 @@
         "exit_code": null,
         "stdout_tail": "",
         "stderr_tail": "",
-        "reason": "LLM did not return a diff block",
+        "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
         "extra": {},
         "passed": false
       },
-      "elapsed": 12.203548908233643,
+      "elapsed": 50.596774101257324,
       "error": null
     },
     {
@@ -155,7 +155,7 @@
         "extra": {},
         "passed": false
       },
-      "elapsed": 6.757091283798218,
+      "elapsed": 8.810361385345459,
       "error": null
     },
     {
@@ -185,7 +185,7 @@
         "extra": {},
         "passed": false
       },
-      "elapsed": 13.942479372024536,
+      "elapsed": 25.879870653152466,
       "error": null
     },
     {
@@ -211,11 +211,11 @@
         "exit_code": null,
         "stdout_tail": "",
         "stderr_tail": "",
-        "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+        "reason": "LLM did not return a diff block",
         "extra": {},
         "passed": false
       },
-      "elapsed": 5.803498983383179,
+      "elapsed": 23.864766120910645,
       "error": null
     },
     {
@@ -241,11 +241,11 @@
         "exit_code": null,
         "stdout_tail": "",
         "stderr_tail": "",
-        "reason": "LLM did not return a diff block",
+        "reason": "baseline diff did not apply: hunk context mismatch at source line 10",
         "extra": {},
         "passed": false
       },
-      "elapsed": 17.73391318321228,
+      "elapsed": 48.8676221370697,
       "error": null
     }
   ]

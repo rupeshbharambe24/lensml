@@ -1,15 +1,16 @@
 --- a/bug.py
 +++ b/bug.py
-@@ -45,7 +45,7 @@
+@@ -51,8 +51,7 @@
  
  
  def evaluate(model: nn.Module) -> float:
--    # Bug: model is left in train() mode → BatchNorm uses current-batch stats.
+-    # Bug: model is left in train() mode → BatchNorm uses current-batch
+-    # stats AND Dropout is still active during what should be inference.
 +    model.eval()
      correct = 0
      total = 0
-     for _ in range(5):
-@@ -54,6 +54,7 @@
+     for _ in range(20):
+@@ -61,6 +60,7 @@
              preds = model(x).argmax(dim=1)
          correct += int((preds == y).sum())
          total += len(y)

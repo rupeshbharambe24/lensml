@@ -1,7 +1,7 @@
 --- a/bug.py
 +++ b/bug.py
-@@ -26,9 +26,7 @@
- mu = torch.tensor([-1.5, 1.5])
+@@ -30,9 +30,7 @@
+ mu = torch.tensor([-0.4, 0.4])
  
  model = nn.Linear(DIM, N_CLASSES)
 -# Bug: huge weights = confident-wrong predictions = enormous CE at init.

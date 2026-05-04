@@ -1,38 +1,38 @@
 {
   "total": 8,
-  "fix_pass": 7,
-  "bug_correctly_fails": 4,
-  "overall_pass": 3,
-  "fix_pass_rate": 0.875,
-  "overall_pass_rate": 0.375,
-  "elapsed": 117.51808261871338,
+  "fix_pass": 8,
+  "bug_correctly_fails": 8,
+  "overall_pass": 8,
+  "fix_pass_rate": 1.0,
+  "overall_pass_rate": 1.0,
+  "elapsed": 87.0290801525116,
   "runs": [
     {
       "fixture_slug": "tiny/bad_init/0",
       "pathology_class": "bad_init",
       "host_env": "tiny",
-      "elapsed": 24.443464517593384,
+      "elapsed": 10.111637830734253,
       "fix_passes": true,
-      "bug_correctly_fails": false,
-      "overall_pass": false,
+      "bug_correctly_fails": true,
+      "overall_pass": true,
       "bug": {
         "fixture_slug": "tiny/bad_init/0",
         "variant": "bug",
         "checks": {
           "runs": true,
-          "loss_converged": true,
+          "loss_converged": false,
           "metric_passed": null
         },
-        "final_loss": 3.725290076417309e-09,
+        "final_loss": 3.0687055587768555,
         "final_metric": null,
-        "steps_used": 300,
-        "elapsed": 11.719370603561401,
+        "steps_used": 30,
+        "elapsed": 4.758802652359009,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": "",
         "reason": null,
         "extra": {},
-        "passed": true
+        "passed": false
       },
       "patched": {
         "fixture_slug": "tiny/bad_init/0",
@@ -42,10 +42,10 @@
           "loss_converged": true,
           "metric_passed": null
         },
-        "final_loss": 0.0011979439295828342,
+        "final_loss": 0.23469489812850952,
         "final_metric": null,
-        "steps_used": 300,
-        "elapsed": 12.700865507125854,
+        "steps_used": 30,
+        "elapsed": 5.341871976852417,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": "",
@@ -58,10 +58,10 @@
       "fixture_slug": "tiny/dead_relu/0",
       "pathology_class": "dead_relu",
       "host_env": "tiny",
-      "elapsed": 22.566211462020874,
-      "fix_passes": false,
+      "elapsed": 10.301421403884888,
+      "fix_passes": true,
       "bug_correctly_fails": true,
-      "overall_pass": false,
+      "overall_pass": true,
       "bug": {
         "fixture_slug": "tiny/dead_relu/0",
         "variant": "bug",
@@ -70,10 +70,10 @@
           "loss_converged": false,
           "metric_passed": null
         },
-        "final_loss": 0.6897128820419312,
+        "final_loss": 0.692750871181488,
         "final_metric": null,
         "steps_used": 300,
-        "elapsed": 11.469939470291138,
+        "elapsed": 5.219529390335083,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": "",
@@ -86,26 +86,26 @@
         "variant": "patched",
         "checks": {
           "runs": true,
-          "loss_converged": false,
+          "loss_converged": true,
           "metric_passed": null
         },
-        "final_loss": 0.6891370415687561,
+        "final_loss": 0.3418528437614441,
         "final_metric": null,
         "steps_used": 300,
-        "elapsed": 11.070594310760498,
+        "elapsed": 5.06847620010376,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": "",
         "reason": null,
         "extra": {},
-        "passed": false
+        "passed": true
       }
     },
     {
       "fixture_slug": "tiny/exploding_grad/0",
       "pathology_class": "exploding_grad",
       "host_env": "tiny",
-      "elapsed": 22.25086522102356,
+      "elapsed": 11.142112731933594,
       "fix_passes": true,
       "bug_correctly_fails": true,
       "overall_pass": true,
@@ -120,7 +120,7 @@
         "final_loss": NaN,
         "final_metric": null,
         "steps_used": 200,
-        "elapsed": 10.814807891845703,
+        "elapsed": 4.968254804611206,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": "",
@@ -139,7 +139,7 @@
         "final_loss": 0.04095953330397606,
         "final_metric": null,
         "steps_used": 200,
-        "elapsed": 11.417375564575195,
+        "elapsed": 6.163030624389648,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": "",
@@ -152,28 +152,28 @@
       "fixture_slug": "tiny/lr_schedule_mismatch/0",
       "pathology_class": "lr_schedule_mismatch",
       "host_env": "tiny",
-      "elapsed": 22.56551432609558,
+      "elapsed": 10.459442853927612,
       "fix_passes": true,
-      "bug_correctly_fails": false,
-      "overall_pass": false,
+      "bug_correctly_fails": true,
+      "overall_pass": true,
       "bug": {
         "fixture_slug": "tiny/lr_schedule_mismatch/0",
         "variant": "bug",
         "checks": {
           "runs": true,
-          "loss_converged": true,
+          "loss_converged": false,
           "metric_passed": null
         },
-        "final_loss": 0.00038137976662255824,
+        "final_loss": 0.13302087783813477,
         "final_metric": null,
         "steps_used": 400,
-        "elapsed": 11.048046350479126,
+        "elapsed": 5.356039047241211,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": "",
         "reason": null,
         "extra": {},
-        "passed": true
+        "passed": false
       },
       "patched": {
         "fixture_slug": "tiny/lr_schedule_mismatch/0",
@@ -183,10 +183,10 @@
           "loss_converged": true,
           "metric_passed": null
         },
-        "final_loss": 0.0007125477422960103,
+        "final_loss": 0.11192882806062698,
         "final_metric": null,
         "steps_used": 400,
-        "elapsed": 11.495790958404541,
+        "elapsed": 5.090168714523315,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": "",
@@ -199,28 +199,28 @@
       "fixture_slug": "tiny/lr_too_high/0",
       "pathology_class": "lr_too_high",
       "host_env": "tiny",
-      "elapsed": 25.381742477416992,
+      "elapsed": 10.85445237159729,
       "fix_passes": true,
-      "bug_correctly_fails": false,
-      "overall_pass": false,
+      "bug_correctly_fails": true,
+      "overall_pass": true,
       "bug": {
         "fixture_slug": "tiny/lr_too_high/0",
         "variant": "bug",
         "checks": {
           "runs": true,
-          "loss_converged": true,
+          "loss_converged": false,
           "metric_passed": null
         },
-        "final_loss": 0.0,
+        "final_loss": 0.22697919607162476,
         "final_metric": null,
-        "steps_used": 300,
-        "elapsed": 13.04068922996521,
+        "steps_used": 200,
+        "elapsed": 5.554364919662476,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": "",
         "reason": null,
         "extra": {},
-        "passed": true
+        "passed": false
       },
       "patched": {
         "fixture_slug": "tiny/lr_too_high/0",
@@ -230,10 +230,10 @@
           "loss_converged": true,
           "metric_passed": null
         },
-        "final_loss": 0.00045409915037453175,
+        "final_loss": 0.09029970318078995,
         "final_metric": null,
-        "steps_used": 300,
-        "elapsed": 12.317260265350342,
+        "steps_used": 200,
+        "elapsed": 5.290701866149902,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": "",
@@ -246,7 +246,7 @@
       "fixture_slug": "tiny/missing_normalize/0",
       "pathology_class": "missing_normalize",
       "host_env": "tiny",
-      "elapsed": 23.755789518356323,
+      "elapsed": 11.415961503982544,
       "fix_passes": true,
       "bug_correctly_fails": true,
       "overall_pass": true,
@@ -261,7 +261,7 @@
         "final_loss": 2639.23779296875,
         "final_metric": null,
         "steps_used": 300,
-        "elapsed": 11.374263525009155,
+        "elapsed": 5.662765026092529,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": "",
@@ -280,7 +280,7 @@
         "final_loss": 0.0037247457075864077,
         "final_metric": null,
         "steps_used": 300,
-        "elapsed": 12.36240816116333,
+        "elapsed": 5.741236925125122,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": "",
@@ -293,28 +293,28 @@
       "fixture_slug": "tiny/model_eval_not_called/0",
       "pathology_class": "model_eval_not_called",
       "host_env": "tiny",
-      "elapsed": 22.561149835586548,
+      "elapsed": 10.770371198654175,
       "fix_passes": true,
-      "bug_correctly_fails": false,
-      "overall_pass": false,
+      "bug_correctly_fails": true,
+      "overall_pass": true,
       "bug": {
         "fixture_slug": "tiny/model_eval_not_called/0",
         "variant": "bug",
         "checks": {
           "runs": true,
           "loss_converged": true,
-          "metric_passed": true
+          "metric_passed": false
         },
-        "final_loss": 0.00263489899225533,
-        "final_metric": 1.0,
+        "final_loss": 0.04888579249382019,
+        "final_metric": 0.9375,
         "steps_used": 200,
-        "elapsed": 11.07214641571045,
+        "elapsed": 5.438724756240845,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": "",
         "reason": null,
         "extra": {},
-        "passed": true
+        "passed": false
       },
       "patched": {
         "fixture_slug": "tiny/model_eval_not_called/0",
@@ -324,10 +324,10 @@
           "loss_converged": true,
           "metric_passed": true
         },
-        "final_loss": 0.00263489899225533,
+        "final_loss": 0.04888579249382019,
         "final_metric": 1.0,
         "steps_used": 200,
-        "elapsed": 11.466521978378296,
+        "elapsed": 5.320573806762695,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": "",
@@ -340,7 +340,7 @@
       "fixture_slug": "tiny/vanishing_grad/0",
       "pathology_class": "vanishing_grad",
       "host_env": "tiny",
-      "elapsed": 30.588459730148315,
+      "elapsed": 11.971193313598633,
       "fix_passes": true,
       "bug_correctly_fails": true,
       "overall_pass": true,
@@ -355,7 +355,7 @@
         "final_loss": 0.688546359539032,
         "final_metric": null,
         "steps_used": 400,
-        "elapsed": 15.269993782043457,
+        "elapsed": 6.1932594776153564,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": "",
@@ -374,7 +374,7 @@
         "final_loss": 0.0005286744562909007,
         "final_metric": null,
         "steps_used": 400,
-        "elapsed": 15.286389827728271,
+        "elapsed": 5.766227722167969,
         "exit_code": 0,
         "stdout_tail": "",
         "stderr_tail": "",
@@ -388,264 +388,12 @@
     {
       "provider": "groq",
       "total": 8,
-      "diagnosis_correct": 4,
-      "fix_passes": 0,
-      "diff_applied": 1,
-      "diagnosis_accuracy": 0.5,
-      "fix_pass_rate": 0.0,
-      "elapsed": 137.65123105049133,
-      "results": [
-        {
-          "fixture_slug": "tiny/bad_init/0",
-          "pathology_class": "bad_init",
-          "host_env": "tiny",
-          "diagnosed_class": "bad_init",
-          "diagnosis_correct": true,
-          "diff_applied": false,
-          "fix_passes": false,
-          "patched": {
-            "fixture_slug": "tiny/bad_init/0",
-            "variant": "baseline",
-            "checks": {
-              "runs": false,
-              "loss_converged": false,
-              "metric_passed": null
-            },
-            "final_loss": null,
-            "final_metric": null,
-            "steps_used": null,
-            "elapsed": 0.0,
-            "exit_code": null,
-            "stdout_tail": "",
-            "stderr_tail": "",
-            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
-            "extra": {},
-            "passed": false
-          },
-          "elapsed": 22.288944005966187,
-          "error": null
-        },
-        {
-          "fixture_slug": "tiny/dead_relu/0",
-          "pathology_class": "dead_relu",
-          "host_env": "tiny",
-          "diagnosed_class": "dead_relu",
-          "diagnosis_correct": true,
-          "diff_applied": false,
-          "fix_passes": false,
-          "patched": {
-            "fixture_slug": "tiny/dead_relu/0",
-            "variant": "baseline",
-            "checks": {
-              "runs": false,
-              "loss_converged": false,
-              "metric_passed": null
-            },
-            "final_loss": null,
-            "final_metric": null,
-            "steps_used": null,
-            "elapsed": 0.0,
-            "exit_code": null,
-            "stdout_tail": "",
-            "stderr_tail": "",
-            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
-            "extra": {},
-            "passed": false
-          },
-          "elapsed": 14.487220048904419,
-          "error": null
-        },
-        {
-          "fixture_slug": "tiny/exploding_grad/0",
-          "pathology_class": "exploding_grad",
-          "host_env": "tiny",
-          "diagnosed_class": "lr_too_high",
-          "diagnosis_correct": false,
-          "diff_applied": true,
-          "fix_passes": false,
-          "patched": {
-            "fixture_slug": "tiny/exploding_grad/0",
-            "variant": "baseline",
-            "checks": {
-              "runs": true,
-              "loss_converged": false,
-              "metric_passed": null
-            },
-            "final_loss": NaN,
-            "final_metric": null,
-            "steps_used": null,
-            "elapsed": 12.657285690307617,
-            "exit_code": null,
-            "stdout_tail": "",
-            "stderr_tail": "",
-            "reason": null,
-            "extra": {},
-            "passed": false
-          },
-          "elapsed": 26.273717880249023,
-          "error": null
-        },
-        {
-          "fixture_slug": "tiny/lr_schedule_mismatch/0",
-          "pathology_class": "lr_schedule_mismatch",
-          "host_env": "tiny",
-          "diagnosed_class": "lr_too_high",
-          "diagnosis_correct": false,
-          "diff_applied": false,
-          "fix_passes": false,
-          "patched": {
-            "fixture_slug": "tiny/lr_schedule_mismatch/0",
-            "variant": "baseline",
-            "checks": {
-              "runs": false,
-              "loss_converged": false,
-              "metric_passed": null
-            },
-            "final_loss": null,
-            "final_metric": null,
-            "steps_used": null,
-            "elapsed": 0.0,
-            "exit_code": null,
-            "stdout_tail": "",
-            "stderr_tail": "",
-            "reason": "LLM did not return a diff block",
-            "extra": {},
-            "passed": false
-          },
-          "elapsed": 14.31641173362732,
-          "error": null
-        },
-        {
-          "fixture_slug": "tiny/lr_too_high/0",
-          "pathology_class": "lr_too_high",
-          "host_env": "tiny",
-          "diagnosed_class": null,
-          "diagnosis_correct": false,
-          "diff_applied": false,
-          "fix_passes": false,
-          "patched": {
-            "fixture_slug": "tiny/lr_too_high/0",
-            "variant": "baseline",
-            "checks": {
-              "runs": false,
-              "loss_converged": false,
-              "metric_passed": null
-            },
-            "final_loss": null,
-            "final_metric": null,
-            "steps_used": null,
-            "elapsed": 0.0,
-            "exit_code": null,
-            "stdout_tail": "",
-            "stderr_tail": "",
-            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
-            "extra": {},
-            "passed": false
-          },
-          "elapsed": 10.852813482284546,
-          "error": null
-        },
-        {
-          "fixture_slug": "tiny/missing_normalize/0",
-          "pathology_class": "missing_normalize",
-          "host_env": "tiny",
-          "diagnosed_class": null,
-          "diagnosis_correct": false,
-          "diff_applied": false,
-          "fix_passes": false,
-          "patched": {
-            "fixture_slug": "tiny/missing_normalize/0",
-            "variant": "baseline",
-            "checks": {
-              "runs": false,
-              "loss_converged": false,
-              "metric_passed": null
-            },
-            "final_loss": null,
-            "final_metric": null,
-            "steps_used": null,
-            "elapsed": 0.0,
-            "exit_code": null,
-            "stdout_tail": "",
-            "stderr_tail": "",
-            "reason": "LLM did not return a diff block",
-            "extra": {},
-            "passed": false
-          },
-          "elapsed": 14.59604287147522,
-          "error": null
-        },
-        {
-          "fixture_slug": "tiny/model_eval_not_called/0",
-          "pathology_class": "model_eval_not_called",
-          "host_env": "tiny",
-          "diagnosed_class": "model_eval_not_called",
-          "diagnosis_correct": true,
-          "diff_applied": false,
-          "fix_passes": false,
-          "patched": {
-            "fixture_slug": "tiny/model_eval_not_called/0",
-            "variant": "baseline",
-            "checks": {
-              "runs": false,
-              "loss_converged": false,
-              "metric_passed": null
-            },
-            "final_loss": null,
-            "final_metric": null,
-            "steps_used": null,
-            "elapsed": 0.0,
-            "exit_code": null,
-            "stdout_tail": "",
-            "stderr_tail": "",
-            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
-            "extra": {},
-            "passed": false
-          },
-          "elapsed": 17.56610631942749,
-          "error": null
-        },
-        {
-          "fixture_slug": "tiny/vanishing_grad/0",
-          "pathology_class": "vanishing_grad",
-          "host_env": "tiny",
-          "diagnosed_class": "vanishing_grad",
-          "diagnosis_correct": true,
-          "diff_applied": false,
-          "fix_passes": false,
-          "patched": {
-            "fixture_slug": "tiny/vanishing_grad/0",
-            "variant": "baseline",
-            "checks": {
-              "runs": false,
-              "loss_converged": false,
-              "metric_passed": null
-            },
-            "final_loss": null,
-            "final_metric": null,
-            "steps_used": null,
-            "elapsed": 0.0,
-            "exit_code": null,
-            "stdout_tail": "",
-            "stderr_tail": "",
-            "reason": "LLM did not return a diff block",
-            "extra": {},
-            "passed": false
-          },
-          "elapsed": 17.26997470855713,
-          "error": null
-        }
-      ]
-    },
-    {
-      "provider": "gemini",
-      "total": 8,
-      "diagnosis_correct": 6,
+      "diagnosis_correct": 3,
       "fix_passes": 0,
       "diff_applied": 0,
-      "diagnosis_accuracy": 0.75,
+      "diagnosis_accuracy": 0.375,
       "fix_pass_rate": 0.0,
-      "elapsed": 129.41265225410461,
+      "elapsed": 189.064857006073,
       "results": [
         {
           "fixture_slug": "tiny/bad_init/0",
@@ -670,19 +418,19 @@
             "exit_code": null,
             "stdout_tail": "",
             "stderr_tail": "",
-            "reason": "LLM did not return a diff block",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
             "extra": {},
             "passed": false
           },
-          "elapsed": 25.03707265853882,
+          "elapsed": 28.786173105239868,
           "error": null
         },
         {
           "fixture_slug": "tiny/dead_relu/0",
           "pathology_class": "dead_relu",
           "host_env": "tiny",
-          "diagnosed_class": "dead_relu",
-          "diagnosis_correct": true,
+          "diagnosed_class": null,
+          "diagnosis_correct": false,
           "diff_applied": false,
           "fix_passes": false,
           "patched": {
@@ -704,7 +452,7 @@
             "extra": {},
             "passed": false
           },
-          "elapsed": 33.1901330947876,
+          "elapsed": 31.076533317565918,
           "error": null
         },
         {
@@ -734,7 +482,7 @@
             "extra": {},
             "passed": false
           },
-          "elapsed": 14.744914770126343,
+          "elapsed": 23.551249504089355,
           "error": null
         },
         {
@@ -760,19 +508,19 @@
             "exit_code": null,
             "stdout_tail": "",
             "stderr_tail": "",
-            "reason": "LLM did not return a diff block",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
             "extra": {},
             "passed": false
           },
-          "elapsed": 12.203548908233643,
+          "elapsed": 15.001669645309448,
           "error": null
         },
         {
           "fixture_slug": "tiny/lr_too_high/0",
           "pathology_class": "lr_too_high",
           "host_env": "tiny",
-          "diagnosed_class": "lr_too_high",
-          "diagnosis_correct": true,
+          "diagnosed_class": null,
+          "diagnosis_correct": false,
           "diff_applied": false,
           "fix_passes": false,
           "patched": {
@@ -794,7 +542,7 @@
             "extra": {},
             "passed": false
           },
-          "elapsed": 6.757091283798218,
+          "elapsed": 10.439283609390259,
           "error": null
         },
         {
@@ -820,11 +568,11 @@
             "exit_code": null,
             "stdout_tail": "",
             "stderr_tail": "",
-            "reason": "LLM did not return a diff block",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
             "extra": {},
             "passed": false
           },
-          "elapsed": 13.942479372024536,
+          "elapsed": 20.552838563919067,
           "error": null
         },
         {
@@ -854,7 +602,511 @@
             "extra": {},
             "passed": false
           },
-          "elapsed": 5.803498983383179,
+          "elapsed": 18.765374898910522,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/vanishing_grad/0",
+          "pathology_class": "vanishing_grad",
+          "host_env": "tiny",
+          "diagnosed_class": null,
+          "diagnosis_correct": false,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/vanishing_grad/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 40.89120030403137,
+          "error": null
+        }
+      ]
+    },
+    {
+      "provider": "gemini",
+      "total": 8,
+      "diagnosis_correct": 6,
+      "fix_passes": 0,
+      "diff_applied": 1,
+      "diagnosis_accuracy": 0.75,
+      "fix_pass_rate": 0.0,
+      "elapsed": 247.66572213172913,
+      "results": [
+        {
+          "fixture_slug": "tiny/bad_init/0",
+          "pathology_class": "bad_init",
+          "host_env": "tiny",
+          "diagnosed_class": "bad_init",
+          "diagnosis_correct": true,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/bad_init/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 14.752700805664062,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/dead_relu/0",
+          "pathology_class": "dead_relu",
+          "host_env": "tiny",
+          "diagnosed_class": "dead_relu",
+          "diagnosis_correct": true,
+          "diff_applied": true,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/dead_relu/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": true,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": 0.692750871181488,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 7.913811683654785,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": null,
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 30.437003135681152,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/exploding_grad/0",
+          "pathology_class": "exploding_grad",
+          "host_env": "tiny",
+          "diagnosed_class": "exploding_grad",
+          "diagnosis_correct": true,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/exploding_grad/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "LLM did not return a diff block",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 44.455265283584595,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/lr_schedule_mismatch/0",
+          "pathology_class": "lr_schedule_mismatch",
+          "host_env": "tiny",
+          "diagnosed_class": "lr_too_high",
+          "diagnosis_correct": false,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/lr_schedule_mismatch/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 50.596774101257324,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/lr_too_high/0",
+          "pathology_class": "lr_too_high",
+          "host_env": "tiny",
+          "diagnosed_class": "lr_too_high",
+          "diagnosis_correct": true,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/lr_too_high/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 8.810361385345459,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/missing_normalize/0",
+          "pathology_class": "missing_normalize",
+          "host_env": "tiny",
+          "diagnosed_class": null,
+          "diagnosis_correct": false,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/missing_normalize/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "LLM did not return a diff block",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 25.879870653152466,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/model_eval_not_called/0",
+          "pathology_class": "model_eval_not_called",
+          "host_env": "tiny",
+          "diagnosed_class": "model_eval_not_called",
+          "diagnosis_correct": true,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/model_eval_not_called/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "LLM did not return a diff block",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 23.864766120910645,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/vanishing_grad/0",
+          "pathology_class": "vanishing_grad",
+          "host_env": "tiny",
+          "diagnosed_class": "vanishing_grad",
+          "diagnosis_correct": true,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/vanishing_grad/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: hunk context mismatch at source line 10",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 48.8676221370697,
+          "error": null
+        }
+      ]
+    },
+    {
+      "provider": "cerebras",
+      "total": 8,
+      "diagnosis_correct": 5,
+      "fix_passes": 0,
+      "diff_applied": 0,
+      "diagnosis_accuracy": 0.625,
+      "fix_pass_rate": 0.0,
+      "elapsed": 176.55908012390137,
+      "results": [
+        {
+          "fixture_slug": "tiny/bad_init/0",
+          "pathology_class": "bad_init",
+          "host_env": "tiny",
+          "diagnosed_class": "bad_init",
+          "diagnosis_correct": true,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/bad_init/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 21.500752210617065,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/dead_relu/0",
+          "pathology_class": "dead_relu",
+          "host_env": "tiny",
+          "diagnosed_class": null,
+          "diagnosis_correct": false,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/dead_relu/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: hunk context mismatch at source line 20",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 23.2021381855011,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/exploding_grad/0",
+          "pathology_class": "exploding_grad",
+          "host_env": "tiny",
+          "diagnosed_class": "exploding_grad",
+          "diagnosis_correct": true,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/exploding_grad/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "LLM did not return a diff block",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 26.575185775756836,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/lr_schedule_mismatch/0",
+          "pathology_class": "lr_schedule_mismatch",
+          "host_env": "tiny",
+          "diagnosed_class": "lr_too_high",
+          "diagnosis_correct": false,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/lr_schedule_mismatch/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 14.20333456993103,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/lr_too_high/0",
+          "pathology_class": "lr_too_high",
+          "host_env": "tiny",
+          "diagnosed_class": "lr_too_high",
+          "diagnosis_correct": true,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/lr_too_high/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 22.886074542999268,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/missing_normalize/0",
+          "pathology_class": "missing_normalize",
+          "host_env": "tiny",
+          "diagnosed_class": null,
+          "diagnosis_correct": false,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/missing_normalize/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "LLM did not return a diff block",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 28.492037057876587,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/model_eval_not_called/0",
+          "pathology_class": "model_eval_not_called",
+          "host_env": "tiny",
+          "diagnosed_class": "model_eval_not_called",
+          "diagnosis_correct": true,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/model_eval_not_called/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 16.606813430786133,
           "error": null
         },
         {
@@ -884,7 +1136,511 @@
             "extra": {},
             "passed": false
           },
-          "elapsed": 17.73391318321228,
+          "elapsed": 23.09274435043335,
+          "error": null
+        }
+      ]
+    },
+    {
+      "provider": "openrouter",
+      "total": 8,
+      "diagnosis_correct": 2,
+      "fix_passes": 0,
+      "diff_applied": 0,
+      "diagnosis_accuracy": 0.25,
+      "fix_pass_rate": 0.0,
+      "elapsed": 170.95212483406067,
+      "results": [
+        {
+          "fixture_slug": "tiny/bad_init/0",
+          "pathology_class": "bad_init",
+          "host_env": "tiny",
+          "diagnosed_class": "bad_init",
+          "diagnosis_correct": true,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/bad_init/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 19.3948872089386,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/dead_relu/0",
+          "pathology_class": "dead_relu",
+          "host_env": "tiny",
+          "diagnosed_class": null,
+          "diagnosis_correct": false,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/dead_relu/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: hunk context mismatch at source line 20",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 13.127350330352783,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/exploding_grad/0",
+          "pathology_class": "exploding_grad",
+          "host_env": "tiny",
+          "diagnosed_class": null,
+          "diagnosis_correct": false,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/exploding_grad/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 24.317533493041992,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/lr_schedule_mismatch/0",
+          "pathology_class": "lr_schedule_mismatch",
+          "host_env": "tiny",
+          "diagnosed_class": "lr_too_high",
+          "diagnosis_correct": false,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/lr_schedule_mismatch/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 36.9827606678009,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/lr_too_high/0",
+          "pathology_class": "lr_too_high",
+          "host_env": "tiny",
+          "diagnosed_class": null,
+          "diagnosis_correct": false,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/lr_too_high/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 14.962081670761108,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/missing_normalize/0",
+          "pathology_class": "missing_normalize",
+          "host_env": "tiny",
+          "diagnosed_class": null,
+          "diagnosis_correct": false,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/missing_normalize/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "LLM did not return a diff block",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 21.325040102005005,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/model_eval_not_called/0",
+          "pathology_class": "model_eval_not_called",
+          "host_env": "tiny",
+          "diagnosed_class": "model_eval_not_called",
+          "diagnosis_correct": true,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/model_eval_not_called/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 13.95277738571167,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/vanishing_grad/0",
+          "pathology_class": "vanishing_grad",
+          "host_env": "tiny",
+          "diagnosed_class": null,
+          "diagnosis_correct": false,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/vanishing_grad/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 26.88969397544861,
+          "error": null
+        }
+      ]
+    },
+    {
+      "provider": "mistral",
+      "total": 8,
+      "diagnosis_correct": 3,
+      "fix_passes": 0,
+      "diff_applied": 0,
+      "diagnosis_accuracy": 0.375,
+      "fix_pass_rate": 0.0,
+      "elapsed": 160.50811505317688,
+      "results": [
+        {
+          "fixture_slug": "tiny/bad_init/0",
+          "pathology_class": "bad_init",
+          "host_env": "tiny",
+          "diagnosed_class": "bad_init",
+          "diagnosis_correct": true,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/bad_init/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 16.506844997406006,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/dead_relu/0",
+          "pathology_class": "dead_relu",
+          "host_env": "tiny",
+          "diagnosed_class": "dead_relu",
+          "diagnosis_correct": true,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/dead_relu/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: hunk context mismatch at source line 10",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 35.46877408027649,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/exploding_grad/0",
+          "pathology_class": "exploding_grad",
+          "host_env": "tiny",
+          "diagnosed_class": null,
+          "diagnosis_correct": false,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/exploding_grad/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "LLM did not return a diff block",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 22.342320442199707,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/lr_schedule_mismatch/0",
+          "pathology_class": "lr_schedule_mismatch",
+          "host_env": "tiny",
+          "diagnosed_class": "lr_too_high",
+          "diagnosis_correct": false,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/lr_schedule_mismatch/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 31.958311557769775,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/lr_too_high/0",
+          "pathology_class": "lr_too_high",
+          "host_env": "tiny",
+          "diagnosed_class": null,
+          "diagnosis_correct": false,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/lr_too_high/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: hunk context mismatch at source line 13",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 13.226043224334717,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/missing_normalize/0",
+          "pathology_class": "missing_normalize",
+          "host_env": "tiny",
+          "diagnosed_class": null,
+          "diagnosis_correct": false,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/missing_normalize/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 13.297064304351807,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/model_eval_not_called/0",
+          "pathology_class": "model_eval_not_called",
+          "host_env": "tiny",
+          "diagnosed_class": "model_eval_not_called",
+          "diagnosis_correct": true,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/model_eval_not_called/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "LLM did not return a diff block",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 17.457342863082886,
+          "error": null
+        },
+        {
+          "fixture_slug": "tiny/vanishing_grad/0",
+          "pathology_class": "vanishing_grad",
+          "host_env": "tiny",
+          "diagnosed_class": null,
+          "diagnosis_correct": false,
+          "diff_applied": false,
+          "fix_passes": false,
+          "patched": {
+            "fixture_slug": "tiny/vanishing_grad/0",
+            "variant": "baseline",
+            "checks": {
+              "runs": false,
+              "loss_converged": false,
+              "metric_passed": null
+            },
+            "final_loss": null,
+            "final_metric": null,
+            "steps_used": null,
+            "elapsed": 0.0,
+            "exit_code": null,
+            "stdout_tail": "",
+            "stderr_tail": "",
+            "reason": "baseline diff did not apply: malformed hunk header: '@@\\n'",
+            "extra": {},
+            "passed": false
+          },
+          "elapsed": 10.251413583755493,
           "error": null
         }
       ]

@@ -1,11 +1,11 @@
 --- a/bug.py
 +++ b/bug.py
-@@ -24,7 +24,7 @@
- mu = torch.tensor([-2.0, 2.0])
+@@ -29,7 +29,7 @@
+ mu = torch.tensor([-0.4, 0.4])
  
  model = nn.Linear(DIM, N_CLASSES)
--optimizer = torch.optim.SGD(model.parameters(), lr=10.0)  # too high
+-optimizer = torch.optim.SGD(model.parameters(), lr=50.0)  # too high → oscillates
 +optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
  criterion = nn.CrossEntropyLoss()
  
- last_loss = float("nan")
+ window: deque[float] = deque(maxlen=20)

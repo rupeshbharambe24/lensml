@@ -1,9 +1,14 @@
 """Tiny model.eval()-not-called fixture (bench plan §6.1).
 
-A small MLP with BatchNorm. The validation loop runs the model without
-switching to eval mode — BatchNorm uses the *current batch* statistics
-(garbage on a tiny val batch) instead of the running averages it
-accumulated during training. Reported val accuracy is wildly off.
+A small MLP with BatchNorm + Dropout. The validation loop runs the
+model without switching to eval mode, so:
+
+    1. BatchNorm uses the *current val batch* statistics instead of
+       the running averages it accumulated during training.
+    2. Dropout fires randomly, dropping half the activations during
+       what's supposed to be deterministic inference.
+
+Both effects together drive val accuracy down to roughly chance.
 
 Canonical fix: wrap the validation loop with ``model.eval()`` /
 ``model.train()``.
@@ -24,12 +29,12 @@ DIM = 8
 HID = 32
 N_CLASSES = 2
 
-mu = torch.tensor([-1.5, 1.5])
+mu = torch.tensor([-0.4, 0.4])
 
 
 def make_batch(n: int) -> tuple[torch.Tensor, torch.Tensor]:
     y = torch.randint(0, N_CLASSES, (n,))
-    x = torch.randn(n, DIM) * 0.5 + mu[y].unsqueeze(1)
+    x = torch.randn(n, DIM) * 0.4 + mu[y].unsqueeze(1)
     return x, y
 
 
@@ -38,18 +43,20 @@ class Net(nn.Module):
         super().__init__()
         self.fc1 = nn.Linear(DIM, HID)
         self.bn = nn.BatchNorm1d(HID)
+        self.dropout = nn.Dropout(0.8)
         self.fc2 = nn.Linear(HID, N_CLASSES)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.fc2(torch.relu(self.bn(self.fc1(x))))
+        return self.fc2(self.dropout(torch.relu(self.bn(self.fc1(x)))))
 
 
 def evaluate(model: nn.Module) -> float:
-    # Bug: model is left in train() mode → BatchNorm uses current-batch stats.
+    # Bug: model is left in train() mode → BatchNorm uses current-batch
+    # stats AND Dropout is still active during what should be inference.
     correct = 0
     total = 0
-    for _ in range(5):
-        x, y = make_batch(4)  # tiny val batches — BN stats are garbage
+    for _ in range(20):
+        x, y = make_batch(8)
         with torch.no_grad():
             preds = model(x).argmax(dim=1)
         correct += int((preds == y).sum())

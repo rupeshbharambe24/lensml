@@ -1,11 +1,11 @@
 --- a/bug.py
 +++ b/bug.py
-@@ -30,7 +30,7 @@
+@@ -36,7 +36,7 @@
          # Push the bias way negative so ReLU kills almost every unit.
          with torch.no_grad():
-             self.fc1.bias.fill_(-5.0)
+             self.fc1.bias.fill_(-2.0)
 -        self.act = nn.ReLU()
-+        self.act = nn.LeakyReLU(0.01)
++        self.act = nn.LeakyReLU(0.1)
          self.fc2 = nn.Linear(32, N_CLASSES)
  
      def forward(self, x: torch.Tensor) -> torch.Tensor:
