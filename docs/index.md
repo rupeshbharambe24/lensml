@@ -16,7 +16,7 @@ agent that wires them together.
 ## Try it
 
 ```bash
-pip install lensml
+pip install "git+https://github.com/rupeshbharambe24/lensml.git"   # not on PyPI yet
 lensml dashboard &        # http://localhost:8000
 # in your training script:
 import lensml

@@ -5,10 +5,12 @@ react to a real training run in about five minutes.
 
 ## 1. Install
 
+lensml is not on PyPI yet, so install from GitHub:
+
 ```bash
-pip install lensml                          # core
-pip install "lensml[lightning]"             # for Lightning callback
-pip install "lensml[transformers]"          # for HF Trainer callback
+pip install "git+https://github.com/rupeshbharambe24/lensml.git"                       # core
+pip install "lensml[lightning] @ git+https://github.com/rupeshbharambe24/lensml.git"    # for Lightning callback
+pip install "lensml[transformers] @ git+https://github.com/rupeshbharambe24/lensml.git" # for HF Trainer callback
 ```
 
 ## 2. Start the dashboard

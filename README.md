@@ -40,9 +40,12 @@ lensml watches your PyTorch / PyTorch Lightning / HuggingFace Trainer training r
 
 ## 30-second install
 
+lensml is not published on PyPI yet; install it from source:
+
 ```bash
-pip install lensml                          # core package
-pip install "lensml[lightning,transformers]" # optional integrations
+pip install "git+https://github.com/rupeshbharambe24/lensml.git"                          # core package
+pip install "lensml[lightning,transformers] @ git+https://github.com/rupeshbharambe24/lensml.git" # optional integrations
+# or, from a clone: uv sync --extra all --extra dev
 lensml dashboard &                           # localhost:8000 + dashboard
 python train.py                              # your script with `lensml.watch(...)` added
 ```
@@ -67,11 +70,17 @@ handle = lensml.watch(model, optimizer)      # hooks installed; telemetry stream
 
 See [DESIGN.md](docs/DESIGN.md) for the public design doc. Short version:
 
-```
-Training subprocess  ─ZMQ PUB/SUB→  FastAPI server  ─SSE→  Next.js dashboard
-(user's train.py +                  (agent loop +          (uPlot charts +
- lensml.watch hooks)                 git + ckpt +           diff viewer +
-                     ←─SIGUSR1───   SQLite event log)       y/n/u keys)
+```mermaid
+flowchart LR
+    T["Training subprocess<br/>user's train.py + lensml.watch hooks"]
+    S["FastAPI server<br/>agent loop · git · checkpoints<br/>SQLite event log"]
+    D["Next.js dashboard<br/>uPlot charts · diff viewer · y/n/u keys"]
+    L["LLM providers via LiteLLM<br/>Groq · Cerebras · Gemini · OpenRouter · Mistral"]
+    T -- "telemetry (ZMQ PUB/SUB)" --> S
+    S -- "SSE" --> D
+    D -- "approve / reject" --> S
+    S -- "pause / resume (SIGUSR1)" --> T
+    S -- "diagnosis prompt" --> L
 ```
 
 ## Benchmarks
@@ -112,8 +121,8 @@ because they're parser-built rather than text-generated. Full report:
 
 ## Links
 
-- 🌐 Landing page: [lensml.vercel.app](https://lensml.vercel.app) (Vercel free tier)
-- 📖 Docs: [rupeshbharambe24.github.io/lensml](https://rupeshbharambe24.github.io/lensml/) (GitHub Pages free tier)
+- 📖 Docs: [`docs/`](docs/) (mkdocs-material; preview locally with `uv run mkdocs serve`, built output lives on the `gh-pages` branch)
+- 🌐 Landing page source: [`landing/`](landing/) (static, Vercel-ready)
 - 🧪 Source + issues: [github.com/rupeshbharambe24/lensml](https://github.com/rupeshbharambe24/lensml)
 - 📋 Day-by-day build log: [lensml-implementation-sequence.md](lensml-implementation-sequence.md)
 
